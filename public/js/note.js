@@ -63,9 +63,9 @@ Note.prototype.postCreateUpdateHook = function(noteData) {
 
 
 /**
- * This method is called after a node has been deleted.
+ * This method is called after a note has been deleted.
  * It removes it from the local 
- * It tells the NodeController to update its local store accordingly.
+ * It tells the NoteController to update its local store accordingly.
  * @void
  */
 Note.prototype.postDestroyHook = function(noteData) {

@@ -1,6 +1,6 @@
 /**
  * Constructor for notes
- * Checks the server for newer versions of the nodes
+ * Checks the server for newer versions of the notes
  */
 function NoteController() {
   console.log("init called");
