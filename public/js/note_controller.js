@@ -130,7 +130,7 @@ NoteController.removeFromLocalStore = function(key) {
  */
 NoteController.updateDataStore = function() {
   if (NoteController.hasLocalStorage) {
-    var url = "/users/sebastian/notes';
+    var url = "/user/sebastian/notes";
     var lastModified = localStorage["lastModified"];
     if (lastModified != null) {
       url = url + '?since=' + lastModified;
