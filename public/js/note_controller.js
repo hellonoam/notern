@@ -81,7 +81,6 @@ NoteController.prototype.addToLocalStore = function(data) {
       self.writeToLocalStorage("lastModified", data.lastModified);
     };
     // Save the data to the local store
-    debugger
     var noteId = data.noteId;
     self.writeToLocalStorage(noteId, data);
     // Get a collection of noteIds
