@@ -5,6 +5,7 @@ require.paths.unshift(__dirname + "/vendor");
  */
 
 var express = require('express');
+	util    = require("util");
 
 var app = module.exports = express.createServer();
 
@@ -29,11 +30,14 @@ app.configure('production', function(){
 
 // Routes
 
-app.get('/', function(req, res){
-  res.render('index', {
-    title: 'Express'
-  });
-});
+// '/' with get or post gets the index file in the public folder
+app.get("/", index);
+app.post("/", index);
+function index(req, res) {
+	res.writeHead(200, {"content-type": "text/html"});
+	var rs = fs.createReadStream("./public/index.html");
+	util.pump(rs, res);
+}
 
 // Only listen on $ node app.js
 
