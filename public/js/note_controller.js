@@ -173,8 +173,7 @@ NoteController.prototype.readFromLocalStorage = function(key) {
 
 
 NoteController.prototype.emptyDatabase = function() {
-  localStorage.setItem("allNoteIds", null);
-  localStorage.setItem("lastModified", null);
+  localStorage.clear();
 };
 
 
