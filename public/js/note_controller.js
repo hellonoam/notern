@@ -3,14 +3,16 @@
  * Checks the server for newer versions of the nodes
  */
 function NoteController() {
-  NoteController.updateDataStore();
+  console.log("init called");
+  var self = this;
+  self.updateDataStore();
 };
 
 
 /**
  * Returns true if local storage is supported, false otherwise
  */
-NoteController.hasLocalStorage = function() {
+NoteController.prototype.hasLocalStorage = function() {
   console.log("has local storage called");
   try {
     return 'localStorage' in window && window['localStorage'] !== null;
@@ -27,10 +29,11 @@ NoteController.hasLocalStorage = function() {
  * @returns:
  *   the note for the noteId or null if none exist
  */
-NoteController.get = function(noteId) {
-  var note = NoteController.getNoteFromLocalStore(noteId);
+NoteController.prototype.get = function(noteId) {
+  var self = this;
+  var note = self.getNoteFromLocalStore(noteId);
   if (note == null) {
-    return NoteController.getNoteFromServer(noteId);
+    return self.getNoteFromServer(noteId);
   };
 };
 
@@ -42,7 +45,7 @@ NoteController.get = function(noteId) {
  * @returns:
  *   List of all notes
  */
-NoteController.getAll = function(noteId) {
+NoteController.prototype.getAll = function(noteId) {
   return null;
 };
 
@@ -52,9 +55,10 @@ NoteController.getAll = function(noteId) {
  * @params
  *    noteId : noteId of node to load
  */
-NoteController.getNoteFromServer = function(noteId) {
+NoteController.prototype.getNoteFromServer = function(noteId) {
+  var self = this;
   $.getJSON("user/sebastian/notes/" + noteId, function(data) {
-    NoteController.addToLocalStore(data);
+    self.addToLocalStore(data);
     return data;
   });
 };
@@ -66,29 +70,28 @@ NoteController.getNoteFromServer = function(noteId) {
  * @params
  *    data : the note data object also containing its own noteId as data.noteId
  */
-NoteController.addToLocalStore = function(data) {
-  debugger
+NoteController.prototype.addToLocalStore = function(data) {
+  var self = this;
   console.log("addToLocalStore called with data: " + data);
-  if (NoteController.hasLocalStorage) {
+  if (self.hasLocalStorage) {
     // Make sure the local store knows when the last modified item
     // was modified
-    var lastModified = JSON.parse(localStorage["lastModified"]);
+    var lastModified = self.readFromLocalStorage("lastModified");
     if (lastModified < data.lastModified) {
-      localStorage["lastModified"] = JSON.stringify(data.lastModified);
+      self.writeToLocalStorage("lastModified", data.lastModified);
     };
     // Save the data to the local store
     var noteId = data.noteId;
-    localStorage[noteId] = JSON.stringify(data);
-    
+    self.writeToLocalStorage(noteId, data);
     // Get a collection of noteIds
-    var allNoteIds = JSON.parse(localStorage["allNoteIds"]);
+    var allNoteIds = self.readFromLocalStorage("allNoteIds");
     // create initial noteIdmap
     if (allNoteIds == null) {allNoteIds = [];};
     // insert noteId if it isn't already there
     if (allNoteIds.indexOf(noteId) == -1) {
       console.log("allNoteIds before push: " + allNoteIds);
       allNoteIds.push(noteId);
-      localStorage["allNoteIds"] = JSON.stringify(allNoteIds);
+      self.writeToLocalStorage("allNoteIds", allNoteIds);
     };
   };
 };
@@ -101,9 +104,9 @@ NoteController.addToLocalStore = function(data) {
  * @returns
  *    note or null if no note is known by that noteId
  */
-NoteController.getNoteFromLocalStore = function(noteId) {
-  if (NoteController.hasLocalStorage) {
-    return JSON.parse(localStorage[noteId]);
+NoteController.prototype.getNoteFromLocalStore = function(noteId) {
+  if (self.hasLocalStorage) {
+    return readFromLocalStorage(noteId);
   } else {
     return null;
   };
@@ -117,13 +120,13 @@ NoteController.getNoteFromLocalStore = function(noteId) {
  * @returns
  *    note or null if no note is known by that noteId
  */
-NoteController.removeFromLocalStore = function(noteId) {
-  if (NoteController.hasLocalStorage) {
+NoteController.prototype.removeFromLocalStore = function(noteId) {
+  if (self.hasLocalStorage) {
     // Remove the note
-    localStorage[noteId] = JSON.stringify(null);
+    writeToLocalStorage(noteId, null);
 
-    var allNoteIds = localStorage["allNoteIds"];
-    localStorage["allNoteIds"] = JSON.stringify(allNoteIds.without(noteId));
+    var allNoteIds = readFromLocalStorage("allNoteIds");
+    writeToLocalStorage("allNoteIds", allNoteIds.without(noteId));
   };
 };
 
@@ -133,23 +136,36 @@ NoteController.removeFromLocalStore = function(noteId) {
  * has the most up to date versions of the notes
  * @void
  */
-NoteController.updateDataStore = function() {
-  if (NoteController.hasLocalStorage) {
+NoteController.prototype.updateDataStore = function() {
+  var self = this;
+  if (self.hasLocalStorage) {
     var url = "/user/sebastian/notes";
-    var lastModified = JSON.parse(localStorage["lastModified"]);
+    var lastModified = self.readFromLocalStorage("lastModified");
     if (lastModified != null) {
       url = url + '?since=' + lastModified;
     };
     $.getJSON(url, function(notes) {
       _.each(notes, function(note) {
-        NoteController.addToLocalStore(note);
+        self.addToLocalStore(note);
       });
     });
   };
 };
 
 
-NoteController.emptyDatabase = function() {
+NoteController.prototype.writeToLocalStorage = function(key, value) {
+  localStorage[key] = JSON.stringify(value);
+};
+NoteController.prototype.readFromLocalStorage = function(key) {
+  JSON.parse(localStorage[key]);
+};
+
+
+NoteController.prototype.emptyDatabase = function() {
   localStorage["allNoteIds"] = null;
   localStorage["lastModified"] = null;
 };
+
+
+// Instance to be used throughout the code
+var noteController = new NoteController();
