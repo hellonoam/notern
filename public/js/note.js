@@ -58,7 +58,7 @@ Note.prototype.save = function() {
 Note.prototype.postCreateUpdateHook = function(noteData) {
   var self = this;
   self.data = noteData; // Update the local data state
-  NoteController.addToLocalStore(noteData);
+  noteController.addToLocalStore(noteData);
 };
 
 
@@ -69,5 +69,5 @@ Note.prototype.postCreateUpdateHook = function(noteData) {
  * @void
  */
 Note.prototype.postDestroyHook = function(noteData) {
-  NoteController.removeFromLocalStore(noteData.data.noteId);
+  noteContoller.removeFromLocalStore(noteData.data.noteId);
 };
