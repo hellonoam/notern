@@ -1,3 +1,6 @@
 [submodule "vendor/zepto"]
 	path = vendor/zepto
 	url = git://github.com/madrobby/zepto.git
+[submodule "vendor/pure"]
+	path = vendor/pure
+	url = git://github.com/pure/pure.git
