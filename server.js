@@ -3,8 +3,9 @@
  * Module dependencies.
  */
 
-var express = require('express');
-	util    = require("util");
+var express = require('express'),
+	util    = require('util'),
+	fs      = require('fs');
 
 var app = module.exports = express.createServer();
 
