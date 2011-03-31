@@ -3,28 +3,11 @@
  * Checks the server for newer versions of the nodes
  */
 function Note() {
-};
+  var self = this;
 
-
-/**
- * Returns a note object for a particular key
- * @params:
- *   key : the key of the note
- * @returns:
- *   the note for the key or null if none exist
- */
-Note.get = function(key) {
-  return null;
-};
-
-
-/**
- * Returns a list of all locally stored notes
- * @returns:
- *   List of all the notes for a given user
- */
-Note.get = function(key) {
-  return null;
+  // Set initial default values
+  self.key = null;
+  self.lastModified = new Date().getTime();
 };
 
 
@@ -35,8 +18,7 @@ Note.get = function(key) {
  *    an array of notes
  */
 Note.prototype.destroy = function() {
-  // save the node to the datastore
-  // and to the server
+  
 };
 
 
@@ -45,6 +27,34 @@ Note.prototype.destroy = function() {
  * @void
  */
 Note.prototype.save = function() {
-  // save the node to the datastore
-  // and to the server
+  var self = this;
+  if (self.key == null) {
+    // This is a new item, create it
+    var noteData = JSON.stringify(self);
+    console.log("stringified note: " + noteData);
+    $.post("/user/sebastian/notes", self, self.postCreateUpdateHook, "application/json");
+  } else {
+    // This is an existing item, update it
+    var key = self.key;
+    $.put('/user/sebastian/notes/' + key, self, self.postCreateUpdateHook, "application/json");
+  };
+};
+
+
+/**
+ * This method is called after a the server has received an updated note.
+ * It tells the NodeController to update its local store accordingly.
+ */
+Note.prototype.postCreateUpdateHook = function(noteData) {
+  NoteController.addToLocalStore(noteData);
+};
+
+
+/**
+ * This method is called after a node has been deleted.
+ * It removes it from the local 
+ * It tells the NodeController to update its local store accordingly.
+ */
+Note.prototype.postCreateUpdateHook = function(noteData) {
+  NoteController.addToLocalStore(noteData);
 };
