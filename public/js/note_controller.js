@@ -1,16 +1,19 @@
 /**
  * Constructor for notes
- * Checks the server for newer versions of the nodes
+ * Checks the server for newer versions of the notes
  */
 function NoteController() {
-  NoteController.updateDataStore();
+  console.log("init called");
+  var self = this;
+  self.updateDataStore();
 };
 
 
 /**
  * Returns true if local storage is supported, false otherwise
  */
-NoteController.hasLocalStorage = function() {
+NoteController.prototype.hasLocalStorage = function() {
+  console.log("has local storage called");
   try {
     return 'localStorage' in window && window['localStorage'] !== null;
   } catch (e) {
@@ -20,28 +23,29 @@ NoteController.hasLocalStorage = function() {
 
 
 /**
- * Returns a note object for a particular key
+ * Returns a note object for a particular noteId
  * @params:
- *   key : the key of the note
+ *   noteId : the noteId of the note
  * @returns:
- *   the note for the key or null if none exist
+ *   the note for the noteId or null if none exist
  */
-NoteController.get = function(key) {
-  var note = NoteController.getNoteFromLocalStore(key);
+NoteController.prototype.get = function(noteId) {
+  var self = this;
+  var note = self.getNoteFromLocalStore(noteId);
   if (note == null) {
-    return NoteController.getNoteFromServer(key);
+    return self.getNoteFromServer(noteId);
   };
 };
 
 
 /**
- * Returns a note object for a particular key
+ * Returns a note object for a particular noteId
  * @params:
- *   key : the key of the note
+ *   noteId : the noteId of the note
  * @returns:
  *   List of all notes
  */
-NoteController.getAll = function(key) {
+NoteController.prototype.getAll = function(noteId) {
   return null;
 };
 
@@ -49,12 +53,13 @@ NoteController.getAll = function(key) {
 /**
  * loads a note from the server
  * @params
- *    key : key of node to load
+ *    noteId : noteId of node to load
  */
-NoteController.getNoteFromServer = function(key) {
-  $.getJSON("user/sebastian/notes/" + key, function(data) {
-    NoteController.addToLocalStore(data);
-    return data;
+NoteController.prototype.getNoteFromServer = function(noteId) {
+  var self = this;
+  $.getJSON("user/sebastian/notes/" + noteId, function(data) {
+    self.addToLocalStore(data);
+    return new Node(data);
   });
 };
 
@@ -63,44 +68,45 @@ NoteController.getNoteFromServer = function(key) {
  * Persists a note in the local datastore
  * overwriting existing notes if one is already existing
  * @params
- *    data : the note data object also containing its own key as data.key
+ *    data : the note data object also containing its own noteId as data.noteId
  */
-NoteController.addToLocalStore = function(data) {
-  console.log("addToLocalStore called with data: " + data);
-  if (NoteController.hasLocalStorage) {
+NoteController.prototype.addToLocalStore = function(data) {
+  var self = this;
+  console.log(data);
+  if (self.hasLocalStorage) {
     // Make sure the local store knows when the last modified item
     // was modified
-    var lastModified = localStorage["lastModified"];
+    var lastModified = self.lastModified();
     if (lastModified < data.lastModified) {
-      localStorage["lastModified"] = data.lastModified;
+      self.writeToLocalStorage("lastModified", data.lastModified);
     };
     // Save the data to the local store
-    var key = data.key;
-    localStorage[key] = JSON.stringify(data);
-    
-    // Get a collection of keys
-    var allKeys = localStorage["allKeys"];
-    // create initial keymap
-    if (allKeys == null) {allKeys = [];};
-    // insert key if it isn't already there
-    if (allKeys.indexOf(key) == -1) {
-      allKeys.push(key);
-      localStorage["allKeys"] = allKeys;
+    var noteId = data.noteId;
+    self.writeToLocalStorage(noteId, data);
+    // Get a collection of noteIds
+    var allNoteIds = self.allNoteIds();
+    // create initial noteIdmap
+    if (allNoteIds == null) {allNoteIds = [];};
+    // insert noteId if it isn't already there
+    if (allNoteIds.indexOf(noteId) == -1) {
+      console.log("allNoteIds before push: " + allNoteIds);
+      allNoteIds.push(noteId);
+      self.setAllNoteIds(allNoteIds);
     };
   };
 };
 
 
 /**
- * Loads a note from the local store given a key
+ * Loads a note from the local store given a noteId
  * @params
- *    key : the key to load the note from
+ *    noteId : the noteId to load the note from
  * @returns
- *    note or null if no note is known by that key
+ *    note or null if no note is known by that noteId
  */
-NoteController.getNoteFromLocalStore = function(key) {
-  if (NoteController.hasLocalStorage) {
-    return JSON.parse(localStorage[key]);
+NoteController.prototype.getNoteFromLocalStore = function(noteId) {
+  if (self.hasLocalStorage) {
+    return self.readFromLocalStorage(noteId);
   } else {
     return null;
   };
@@ -108,19 +114,19 @@ NoteController.getNoteFromLocalStore = function(key) {
 
 
 /**
- * Loads a note from the local store given a key
+ * Loads a note from the local store given a noteId
  * @params
- *    key : the key to load the note from
+ *    noteId : the noteId to load the note from
  * @returns
- *    note or null if no note is known by that key
+ *    note or null if no note is known by that noteId
  */
-NoteController.removeFromLocalStore = function(key) {
-  if (NoteController.hasLocalStorage) {
+NoteController.prototype.removeFromLocalStore = function(noteId) {
+  if (self.hasLocalStorage) {
     // Remove the note
-    localStorage[key] = null;
+    writeToLocalStorage(noteId, null);
 
-    var allKeys = localStorage["allKeys"];
-    localStorage["allKeys"] = allKeys.without(key);
+    var allNoteIds = self.allNoteIds();
+    writeToLocalStorage("allNoteIds", allNoteIds.without(noteId));
   };
 };
 
@@ -130,17 +136,49 @@ NoteController.removeFromLocalStore = function(key) {
  * has the most up to date versions of the notes
  * @void
  */
-NoteController.updateDataStore = function() {
-  if (NoteController.hasLocalStorage) {
+NoteController.prototype.updateDataStore = function() {
+  var self = this;
+  if (self.hasLocalStorage) {
     var url = "/user/sebastian/notes";
-    var lastModified = localStorage["lastModified"];
+    var lastModified = self.lastModified();
     if (lastModified != null) {
       url = url + '?since=' + lastModified;
     };
     $.getJSON(url, function(notes) {
       _.each(notes, function(note) {
-        NoteController.addToLocalStore(note);
+        self.addToLocalStore(note);
       });
     });
   };
 };
+
+
+NoteController.prototype.lastModified = function() {
+  return this.readFromLocalStorage("lastModified");
+};
+NoteController.prototype.setLastModified = function(time) {
+  this.writeToLocalStorage("lastModified", time);
+};
+NoteController.prototype.allNoteIds = function() {
+  return this.readFromLocalStorage("allNoteIds");
+};
+NoteController.prototype.setAllNoteIds = function(noteIds) {
+  this.writeToLocalStorage("allNoteIds", noteIds);
+};
+
+NoteController.prototype.writeToLocalStorage = function(key, value) {
+  localStorage[key] = JSON.stringify(value);
+};
+NoteController.prototype.readFromLocalStorage = function(key) {
+  return JSON.parse(localStorage[key]);
+};
+
+
+NoteController.prototype.emptyDatabase = function() {
+  localStorage["allNoteIds"] = null;
+  localStorage["lastModified"] = null;
+};
+
+
+// Instance to be used throughout the code
+var noteController = new NoteController();

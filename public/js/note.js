@@ -19,7 +19,7 @@ Note.prototype.destroy = function() {
   var self = this;
   $.ajax({
     type: 'DELETE',
-    url: '/user/sebastian/notes/' + self.data.key,
+    url: '/user/sebastian/notes/' + self.data.noteId,
     success: self.postDestroyHook
   });
 };
@@ -38,14 +38,14 @@ Note.prototype.save = function() {
     self.data.createdAt = new Date().getTime();
   };
   // Create or update as needed.
-  if (self.data.key == null) {
+  if (self.data.noteId == null) {
     // This is a new item, create it
     console.log("Creating note: " + self);
     $.post("/user/sebastian/notes", self.data, self.postCreateUpdateHook, "application/json");
   } else {
     // This is an existing item, update it
-    var key = self.data.key;
-    $.put('/user/sebastian/notes/' + key, self.data, self.postCreateUpdateHook, "application/json");
+    var noteId = self.data.noteId;
+    $.put('/user/sebastian/notes/' + noteId, self.data, self.postCreateUpdateHook, "application/json");
   };
 };
 
@@ -58,16 +58,16 @@ Note.prototype.save = function() {
 Note.prototype.postCreateUpdateHook = function(noteData) {
   var self = this;
   self.data = noteData; // Update the local data state
-  NoteController.addToLocalStore(noteData);
+  noteController.addToLocalStore(noteData);
 };
 
 
 /**
- * This method is called after a node has been deleted.
+ * This method is called after a note has been deleted.
  * It removes it from the local 
- * It tells the NodeController to update its local store accordingly.
+ * It tells the NoteController to update its local store accordingly.
  * @void
  */
 Note.prototype.postDestroyHook = function(noteData) {
-  NoteController.removeFromLocalStore(noteData.data.key);
+  noteContoller.removeFromLocalStore(noteData.data.noteId);
 };
