@@ -96,3 +96,22 @@ NoteController.getNoteFromLocalStore = function(key) {
     return null;
   };
 };
+
+
+/**
+ * Loads a note from the local store given a key
+ * @params
+ *    key : the key to load the note from
+ * @returns
+ *    note or null if no note is known by that key
+ */
+NoteController.removeFromLocalStore = function(key) {
+  if (NoteController.hasLocalStorage) {
+    // Remove the note
+    localStorage[key] = null;
+
+    var keyMap = localStorage["keyMap"];
+    keyMap[key] = null;
+    localStorage["keyMap"] = keyMap;
+  };
+};

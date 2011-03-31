@@ -18,7 +18,11 @@ function Note() {
  *    an array of notes
  */
 Note.prototype.destroy = function() {
-  
+  $.ajax({
+    type: 'DELETE',
+    url: '/user/sebastian/notes/' + self.key,
+    success: self.postDestroyHook
+  });
 };
 
 
@@ -44,6 +48,7 @@ Note.prototype.save = function() {
 /**
  * This method is called after a the server has received an updated note.
  * It tells the NodeController to update its local store accordingly.
+ * @void
  */
 Note.prototype.postCreateUpdateHook = function(noteData) {
   NoteController.addToLocalStore(noteData);
@@ -54,7 +59,8 @@ Note.prototype.postCreateUpdateHook = function(noteData) {
  * This method is called after a node has been deleted.
  * It removes it from the local 
  * It tells the NodeController to update its local store accordingly.
+ * @void
  */
-Note.prototype.postCreateUpdateHook = function(noteData) {
-  NoteController.addToLocalStore(noteData);
+Note.prototype.postDestroyHook = function(noteData) {
+  NoteController.removeFromLocalStore(noteData.key);
 };
