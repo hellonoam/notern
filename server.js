@@ -14,5 +14,5 @@ process.addListener('uncaughtException', function (err, stack) {
 var Notern = require('./lib/notern');
 
 new Notern({
-  port: 80
+  port: 8000
 }).listen();
