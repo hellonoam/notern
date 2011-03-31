@@ -2,12 +2,10 @@
  * Constructor for notes
  * Checks the server for newer versions of the nodes
  */
-function Note() {
+function Note(data) {
   var self = this;
-
-  // Set initial default values
-  self.key = null;
-  self.lastModified = new Date().getTime();
+  console.log("In Note constructor got data: " + data);
+  self.data = typeof(data) != 'undefined' ? data : {};
 };
 
 
@@ -18,9 +16,10 @@ function Note() {
  *    an array of notes
  */
 Note.prototype.destroy = function() {
+  var self = this;
   $.ajax({
     type: 'DELETE',
-    url: '/user/sebastian/notes/' + self.key,
+    url: '/user/sebastian/notes/' + self.data.key,
     success: self.postDestroyHook
   });
 };
@@ -32,15 +31,21 @@ Note.prototype.destroy = function() {
  */
 Note.prototype.save = function() {
   var self = this;
-  if (self.key == null) {
+  // Update the lastModified time
+  self.data.lastModified = new Date().getTime();
+  // If it is a new object, set the createdAt time
+  if (self.data.createdAt == null) {
+    self.data.createdAt = new Date().getTime();
+  };
+  // Create or update as needed.
+  if (self.data.key == null) {
     // This is a new item, create it
-    var noteData = JSON.stringify(self);
-    console.log("stringified note: " + noteData);
-    $.post("/user/sebastian/notes", self, self.postCreateUpdateHook, "application/json");
+    console.log("Creating note: " + self);
+    $.post("/user/sebastian/notes", self.data, self.postCreateUpdateHook, "application/json");
   } else {
     // This is an existing item, update it
-    var key = self.key;
-    $.put('/user/sebastian/notes/' + key, self, self.postCreateUpdateHook, "application/json");
+    var key = self.data.key;
+    $.put('/user/sebastian/notes/' + key, self.data, self.postCreateUpdateHook, "application/json");
   };
 };
 
@@ -51,6 +56,8 @@ Note.prototype.save = function() {
  * @void
  */
 Note.prototype.postCreateUpdateHook = function(noteData) {
+  var self = this;
+  self.data = noteData; // Update the local data state
   NoteController.addToLocalStore(noteData);
 };
 
@@ -62,5 +69,5 @@ Note.prototype.postCreateUpdateHook = function(noteData) {
  * @void
  */
 Note.prototype.postDestroyHook = function(noteData) {
-  NoteController.removeFromLocalStore(noteData.key);
+  NoteController.removeFromLocalStore(noteData.data.key);
 };

@@ -77,13 +77,16 @@ NoteController.addToLocalStore = function(data) {
     // Save the data to the local store
     var key = data.key;
     localStorage[key] = JSON.stringify(data);
-    // Get a map of keys to 
-    var keyMap = localStorage["keyMap"];
+    
+    // Get a collection of keys
+    var allKeys = localStorage["allKeys"];
     // create initial keymap
-    if (keyMap == null) {keyMap = {};};
-    // create a mapping
-    keyMap[key] = data.lastModified;
-    localStorage["keyMap"] = keyMap;
+    if (allKeys == null) {allKeys = [];};
+    // insert key if it isn't already there
+    if (allKeys.indexOf(key) == -1) {
+      allKeys.push(key);
+      localStorage["allKeys"] = allKeys;
+    };
   };
 };
 
@@ -116,9 +119,8 @@ NoteController.removeFromLocalStore = function(key) {
     // Remove the note
     localStorage[key] = null;
 
-    var keyMap = localStorage["keyMap"];
-    keyMap[key] = null;
-    localStorage["keyMap"] = keyMap;
+    var allKeys = localStorage["allKeys"];
+    localStorage["allKeys"] = allKeys.without(key);
   };
 };
 
@@ -130,7 +132,7 @@ NoteController.removeFromLocalStore = function(key) {
  */
 NoteController.updateDataStore = function() {
   if (NoteController.hasLocalStorage) {
-    var url = "/users/sebastian/notes';
+    var url = "/user/sebastian/notes";
     var lastModified = localStorage["lastModified"];
     if (lastModified != null) {
       url = url + '?since=' + lastModified;
