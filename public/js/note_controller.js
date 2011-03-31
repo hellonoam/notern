@@ -165,16 +165,16 @@ NoteController.prototype.setAllNoteIds = function(noteIds) {
 };
 
 NoteController.prototype.writeToLocalStorage = function(key, value) {
-  localStorage[key] = JSON.stringify(value);
+  localStorage.setItem(key, JSON.stringify(value));
 };
 NoteController.prototype.readFromLocalStorage = function(key) {
-  return JSON.parse(localStorage[key]);
+  return JSON.parse(localStorage.getItem(key));
 };
 
 
 NoteController.prototype.emptyDatabase = function() {
-  localStorage["allNoteIds"] = null;
-  localStorage["lastModified"] = null;
+  localStorage.setItem("allNoteIds", null);
+  localStorage.setItem("lastModified", null);
 };
 
 
