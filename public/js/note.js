@@ -71,3 +71,13 @@ Note.prototype.postCreateUpdateHook = function(noteData) {
 Note.prototype.postDestroyHook = function(noteData) {
   noteContoller.removeFromLocalStore(noteData.data.noteId);
 };
+
+
+/**
+ * Getter for the note id
+ * @returns 
+ *    the notes unique id
+ */
+Note.prototype.noteId = function() {
+  return this.data.nodeId;
+};
