@@ -19,7 +19,7 @@ div.note {
 	display: table;
 	width: 700px;
 	padding-bottom: 10px;
-	background: url(/images/shadow.png) no-repeat right bottom;
+/*	background: url(/images/shadow.png) no-repeat right bottom;*/
 	margin-right: auto;
 	margin-left: auto;
 }
@@ -28,9 +28,12 @@ div.content {
 	background-color: white;
 	float: left;
 	width: 70%;
-	background-color: white;
 	padding: 10px;
 	margin-left: 30%;
+	-webkit-box-shadow: #AAA 0px 1px 3px;
+	-moz-box-shadow: #AAA 0px 1px 3px;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
 }
 
 div.metadata {
@@ -77,6 +80,9 @@ textarea#notetext {
 	width: 400px;
 	height: 100px;
 	font-size: 16px;
+	border-radius: 8px;
+	-moz-border-radius: 8px;
+	border: 1px solid #ccc;
 }
 
 
