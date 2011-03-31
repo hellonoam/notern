@@ -19,7 +19,7 @@ Note.prototype.destroy = function() {
   var self = this;
   $.ajax({
     type: 'DELETE',
-    url: '/user/sebastian/notes/' + self.data.key,
+    url: '/user/sebastian/notes/' + self.data.noteId,
     success: self.postDestroyHook
   });
 };
@@ -38,14 +38,14 @@ Note.prototype.save = function() {
     self.data.createdAt = new Date().getTime();
   };
   // Create or update as needed.
-  if (self.data.key == null) {
+  if (self.data.noteId == null) {
     // This is a new item, create it
     console.log("Creating note: " + self);
     $.post("/user/sebastian/notes", self.data, self.postCreateUpdateHook, "application/json");
   } else {
     // This is an existing item, update it
-    var key = self.data.key;
-    $.put('/user/sebastian/notes/' + key, self.data, self.postCreateUpdateHook, "application/json");
+    var noteId = self.data.noteId;
+    $.put('/user/sebastian/notes/' + noteId, self.data, self.postCreateUpdateHook, "application/json");
   };
 };
 
@@ -69,5 +69,5 @@ Note.prototype.postCreateUpdateHook = function(noteData) {
  * @void
  */
 Note.prototype.postDestroyHook = function(noteData) {
-  NoteController.removeFromLocalStore(noteData.data.key);
+  NoteController.removeFromLocalStore(noteData.data.noteId);
 };
