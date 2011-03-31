@@ -1,3 +1,4 @@
+require.paths.unshift(__dirname + "/vendor");
 
 /**
  * Module dependencies.
