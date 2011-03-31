@@ -1,0 +1,14 @@
+data/sqlite3.js.i
+data/doc/index.php.i
+data/wscript.i
+data/doc/examples.html.i
+data/README.i
+data/sqlite3_bindings.cc.i
+data/compiloop.js.i
+data/test.js.i
+data/compiloop.py.i
+data/examples.js.i
+data/doc/examples.js.i
+data/.hgignore.i
+data/sqlite.js.i
+data/sqlite3_bindings.node.i
