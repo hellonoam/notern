@@ -3,7 +3,7 @@
  * Checks the server for newer versions of the nodes
  */
 function NoteController() {
-  var self = this;
+  NoteController.updateDataStore();
 };
 
 
@@ -68,10 +68,16 @@ NoteController.getNoteFromServer = function(key) {
 NoteController.addToLocalStore = function(data) {
   console.log("addToLocalStore called with data: " + data);
   if (NoteController.hasLocalStorage) {
+    // Make sure the local store knows when the last modified item
+    // was modified
+    var lastModified = localStorage["lastModified"];
+    if (lastModified < data.lastModified) {
+      localStorage["lastModified"] = data.lastModified;
+    };
     // Save the data to the local store
     var key = data.key;
     localStorage[key] = JSON.stringify(data);
-
+    // Get a map of keys to 
     var keyMap = localStorage["keyMap"];
     // create initial keymap
     if (keyMap == null) {keyMap = {};};
@@ -113,5 +119,26 @@ NoteController.removeFromLocalStore = function(key) {
     var keyMap = localStorage["keyMap"];
     keyMap[key] = null;
     localStorage["keyMap"] = keyMap;
+  };
+};
+
+
+/**
+ * Ensures that the local datastore
+ * has the most up to date versions of the notes
+ * @void
+ */
+NoteController.updateDataStore = function() {
+  if (NoteController.hasLocalStorage) {
+    var url = "/users/sebastian/notes';
+    var lastModified = localStorage["lastModified"];
+    if (lastModified != null) {
+      url = url + '?since=' + lastModified;
+    };
+    $.getJSON(url, function(notes) {
+      _.each(notes, function(note) {
+        NoteController.addToLocalStore(note);
+      });
+    });
   };
 };
