@@ -3,5 +3,5 @@ http.createServer(function (req, res) {
   res.writeHead(200, {'Content-Type': 'text/plain'});
   res.end('notern - geo tagged notes!\n');
 }).listen(80, "0.0.0.0");
-console.log('Server running at http://64.30.141.213:80');
+console.log('Server running.');
 
