@@ -67,7 +67,6 @@ div.stats {
 /* @end */
 
 a {
-  color: #00B7FF;
 	text-decoration: none;
 	font-weight: normal;
 	font-style: normal;
@@ -90,6 +89,7 @@ div#main {
 	margin-right: auto;
 	margin-left: auto;
 	max-width: 500px;
+	padding-top: 20px;
 }
 
 input#notesubmit {
@@ -98,13 +98,15 @@ input#notesubmit {
 
 textarea#notetext {
 	width: 100%;
-	border-style: none;
 	padding: 20px;
 	height: 100px;
 	border-bottom-color: #b9b9b9;
 	border-bottom-style: solid;
-	background-color: white;
+	background-color: rgba(0,0,0,0.69);
 	border-right-style: solid;
+	border-radius: 10;
+	border: 1px solid black;
+	color: white;
 }
 
 div#new_note {
@@ -112,9 +114,8 @@ div#new_note {
 	clear: both;
 	text-align: center;
 	width: 100%;
-	padding-top: 10px;
-	background-color: #585858;
-	border-radius: 0 0 10 10;
+	background-color: rgba(255,254,255,0.35);
+	border-radius: 10;
 }
 
 a#addNoteButton {
@@ -123,7 +124,12 @@ a#addNoteButton {
 	padding: 6px;
 	margin: 8px;
 	background-color: white;
-	border: 1px solid #b1b1b1;
+	border: 1px solid #d6dbdb;
+}
+
+a#addNoteButton:hover {
+	border: 1px solid #9a9a9a;
+	background-color: #d1d1d1;
 }
 
 
@@ -180,19 +186,22 @@ div#sortOptions {
 
 .footer {
 	font-size: 58%;
-	margin: 80px auto 0px auto;
-	width: 500px;
-	border-top: 1px solid white;
-	-webkit-box-shadow: 0 -1px 0 #ddd;
-	-moz-box-shadow: 0 -1px 0 #ddd;
-	box-shadow: 0 -1px 0 #ddd;
-	padding: 20px 0;
 	text-align: center;
 	color: #919191;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	margin-right: auto;
+	margin-top: 20px;
+	margin-left: auto;
 }
 
-.footer span, a { 
+.footer span { 
+	border-radius: 10px;	
+	border: 1px solid rgba(255,254,255,0);
 	margin: 0;
+	background-color: rgba(255,254,255,0.44);
+	padding: 10px;
+	color: black;
 }
 
 /* @end */
