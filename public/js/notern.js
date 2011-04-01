@@ -50,8 +50,9 @@ Notern.prototype.initEventlisteners = function() {
   $(self.noteController).bind('addedNewNote', function(event, note) {
     console.log("received new note to render: " + note.noteId());
     self.renderNote(note);
-    $(note).bind('destroy', function(event) {
-      var theNote = event.eventTarget;
+    $(note).bind('noteDestroyed', function(event) {
+      console.log("notern was informed that node was destroyed");
+      var theNote = event.currentTarget;
       self.destroyNote(theNote);
     });
     // TODO: Listen to note change and rerender it
@@ -76,16 +77,9 @@ Notern.prototype.compileTemplates = function() {
  * @void
  */
 Notern.prototype.destroyNote = function(note) {
-  $(note.noteId()).fadeOut(500, function(dom) {
+  $("#" + note.noteId()).fadeOut(500, function(dom) {
     $(dom).remove();
   });
-  var self = this;
-  var noteJson = note.data;
-  var noteId = note.noteId();
-  // Check if there is an existing rendered version of this node
-  // and then replace it.
-  var renderedNote = self.noteTemplate(noteJson);
-  $("#notes").prepend(renderedNote);
 };
 
 
@@ -104,6 +98,9 @@ Notern.prototype.renderNote = function(note) {
   // and then replace it.
   var renderedNote = self.noteTemplate(noteJson);
   $("#notes").prepend(renderedNote);
+  $("#" + noteId + " div.deleteNote a").click(function() {
+    note.destroy();
+  });
 };
 
 
@@ -115,6 +112,7 @@ Notern.prototype.renderNote = function(note) {
 Notern.prototype.compileNotesDirective = function() {
 	var notesDirectives = {
     "div.note@id":'noteId',
+    "div div.deleteNote a@data-id":'noteId',
     "div div.metadata":'metadata',
     "div div.content":'content'
 	};

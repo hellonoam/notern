@@ -23,15 +23,23 @@ function Note(data) {
  */
 Note.prototype.destroy = function() {
   var self = this;
-  // Let observers know that the note destroyed itself
-  $(self).trigger('destroy');
   // TODO: Add a method for catching errors and destroy later
   // when online again!
   $.ajax({
     type: 'DELETE',
     url: '/user/sebastian/notes/' + self.data.noteId,
-    success: self.postDestroyHook
+    error: function() {
+      self.data["pendingDelete"] = true;
+      console.log("Failed at deleting node... will retry");
+      $(self).trigger('serverDeleteFailed');
+    },
+    success: function() {
+      $(self).trigger('destroySuccessful');
+      console.log("Note successfully destroyed at server...");
+    }
   });
+  // Let observers know that the note destroyed itself
+  $(self).trigger('noteDestroyed');
 };
 
 
@@ -41,7 +49,8 @@ Note.prototype.destroy = function() {
  */
 Note.prototype.save = function() {
   var self = this;
-
+  console.log("is this note new? " + self.isNew() + ", what is last saved? " + self.data.lastSaved);
+  console.log(self);
   // TODO: Add some state that indicates if a note has been saved
   // or not that can be shown to the user
 
@@ -64,7 +73,7 @@ Note.prototype.save = function() {
     data: self.data,
     success: function(data) { 
       console.log("note was saved"); 
-      self.data.lastSaved = new Data().getTime();
+      self.data.lastSaved = new Date().getTime();
       $(self).trigger('noteSaved');
       self.rerenderNote();
     },
@@ -116,7 +125,8 @@ Note.prototype.createdAt = function() {
  */
 Note.prototype.isNew = function() {
   var self = this;
-  return !!self.data.lastSaved;
+  console.log(self.data.lastSaved);
+  return self.data.lastSaved == undefined;
 };
 
 
@@ -139,4 +149,15 @@ Note.prototype.isUnsaved = function() {
 Note.prototype.lastModified = function() {
   var self = this;
   self.data.lastModified;
+};
+
+
+/**
+ * Returns true if the note is pending delete
+ * @returns
+ *  true if the note is pending delete.
+ */
+Note.prototype.isPendingDelete = function() {
+  var self = this;
+  return !_.isUndefined(self.data["pendingDelete"]);
 };

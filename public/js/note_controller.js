@@ -27,10 +27,11 @@ NoteController.prototype.initNotes = function() {
   self.notes = {};
   self.loadNotesFromLocalStore();
   self.getLatestNotesFromServer();
+  self.performOfflineActions();
   setInterval(function() {
     console.log("trying to save unsaved notes");
-    self.saveUnsavedNotes();
-  }, 5000);
+    self.performOfflineActions();
+  }, 30000);
 };
 
 
@@ -41,8 +42,23 @@ NoteController.prototype.initNotes = function() {
  */
 NoteController.prototype.getAllSortedByTime = function() {
   var self = this;
-  return _.sortBy(_.values(self.notes), function(note) { note.createdAt(); });
+  return _.sortBy(self.validNotes(), function(note) { note.createdAt(); });
 };
+
+
+/**
+ * Returns all notes that can be displayed.
+ * Notes pending delete are removed.
+ * @returns
+ *  a list of notes that can be displayed in the interface
+ */
+NoteController.prototype.validNotes = function() {
+  var self = this;
+  var notes = _.values(self.notes);
+  var validNotes = _filter.(notes, function(note) { return note.isPendingDelete(); });
+  return validNotes;
+};
+
 
 
 /**
@@ -59,20 +75,14 @@ NoteController.prototype.addNotes = function(notes) {
     if (!self.notes[note.noteId()]) {
       // The note is new so we need to 
       $(self).trigger('addedNewNote', [note]);
-    } else {
-      // The note already exists, meaning we have
-      // added listeners for it.
-      // We therefore have to unbind before we 
-      // replace the note
-      var theNote = self.notes[note.noteId()];
-      $(theNote).unbind();
-    };
+    } 
     self.notes[note.noteId()] = note;
     hasNewNotes = true;
     // Listen to the note destroying itself
-    $(note).bind('destroy', function(event) {
+    $(note).bind('destroySuccessful', function(event) {
+      console.log("controller was informed that note destroyed itself");
       var theNote = event.currentTarget;
-      self.notes[theNote.noteId()] = null;
+      delete self.notes[theNote.noteId()];
       self.persistNotesToLocalStorage();
     });
   });
@@ -103,7 +113,7 @@ NoteController.prototype.loadNotesFromLocalStore = function() {
   var self = this;
   if (self.hasLocalStorage) {
     var localNotesData = self.readFromLocalStorage("notes");
-    var localNotes = _.map(localNotesData, function(data) {return new Note(data);});
+    var localNotes = _.map(localNotesData, function(data) {return self.newNote(data);});
     if (localNotes != null) {
       // We start by sorting notes by time when they are loaded
       // from the local storagne
@@ -148,7 +158,7 @@ NoteController.prototype.getLatestNotesFromServer = function() {
     // so that we know when the last note we received from the
     // server was from.
     var notes = _.map(notesJson, function(noteJson) {
-      return new Note(noteJson);
+      return self.newNote(noteJson);
     });
     _.each(notes, function(note) {
       self.setLastModifiedIfGreater(note.lastModified()); 
@@ -172,20 +182,30 @@ NoteController.prototype.newNote = function(noteJson) {
   var self = this;
   var newNote = new Note(noteJson);
   $(newNote).bind('noteAdded', function(event) {
-    console.log("Controller got notified about note being saved");
+    console.log("Controller got notified about note being added");
     var theNote = event.currentTarget;
     self.addNote(theNote);
   });
   $(newNote).bind('noteSaved', function(event) {
-    var theNote = event.eventTarget;
-    self.noteHasBeenSaved(theNote.noteId());
+    console.log("Controller got notified about server save is complete");
+    var theNote = event.currentTarget;
+    self.offlineActionHasBeenPerformed(theNote.noteId());
     self.persistNotesToLocalStorage();
-    console.log("Controller got notified about note being saved to server");
   });
   $(newNote).bind('serverSaveFailed', function(event) {
     var theNote = event.currentTarget;
     console.log("Controller got notified about note not being save to server");
-    self.registerUnsavableNote(theNote.noteId());
+    self.registerOfflineAction({id: theNote.noteId(), action: "save"});
+  });
+  $(newNote).bind('destroySuccessful', function(event) {
+    var theNote = event.currentTarget;
+    self.offlineActionHasBeenPerformed(theNote.noteId());
+    console.log("Controller got notified about note got deleted from server");
+  });
+  $(newNote).bind('serverDeleteFailed', function(event) {
+    var theNote = event.currentTarget;
+    console.log("Controller got notified about note not being deleted from server");
+    self.registerOfflineAction({id: theNote.noteId(), action: "destroy"});
   });
   return newNote;
 };
@@ -194,14 +214,20 @@ NoteController.prototype.newNote = function(noteJson) {
 /**
  * Saves unsaved notes
  */
-NoteController.prototype.saveUnsavedNotes = function() {
+NoteController.prototype.performOfflineActions = function() {
   var self = this;
-  var unsavedNotesIds = self.unsavedNoteIds();
-  _.each(unsavedNotesIds, function(noteId) {
-    var note = self.notes[noteId];
-    console.log("trying to save the unsaved note:");
-    console.log(note);
-    note.save();
+  var offlineActions = self.offlineActions();
+  _.each(offlineActions, function(data) {
+    var note = self.notes[data.id];
+    if (note) {
+      if (data.action == "save") {
+        console.log("trying to save the unsaved note:");
+        console.log(note);
+        note.save();
+      } else if (data.action == "destroy") {
+        note.destroy();
+      };
+    };
   });
 };
 
@@ -234,22 +260,24 @@ NoteController.prototype.setLastModifiedIfGreater = function(time) {
 
 
 /**
- * Registers that a particular key couldn't be stored to the database.
- * It will be saved at a later time.
+ * Registers that a particular key couldn't be stored or save to the server.
+ * The action will be retried
  * @params
- *  key : the key of the note that couldn't be saved.
+ *  data
+ *    id : key
+ *    action : "save" | "destroy"
  * @void
  */
-NoteController.prototype.registerUnsavableNote = function(key) {
+NoteController.prototype.registerOfflineAction = function(data) {
   var self = this;
   if (self.hasLocalStorage) {
-    var unsavedNotes = self.unsavedNoteIds();
-    if (_.indexOf(unsavedNotes, key) == -1) {
-      unsavedNotes.push(key);
-      self.writeToLocalStorage("unsavedNotes", unsavedNotes);
+    var offlineActions = self.offlineActions();
+    debugger
+    if (_.indexOf(offlineActions, data) == -1) {
+      offlineActions.push(data);
+      self.writeToLocalStorage("offlineActions", offlineActions);
     }
   }
-  localStorage.setItem(key, JSON.stringify(value));
 };
 
 
@@ -258,11 +286,11 @@ NoteController.prototype.registerUnsavableNote = function(key) {
  * @returns
  *  A list of all the note id's that have yet to be saved to the database
  */
-NoteController.prototype.unsavedNoteIds = function() {
+NoteController.prototype.offlineActions = function() {
   var self = this;
   if (self.hasLocalStorage && self.readFromLocalStorage != null) {
-    var unsavedNoteIds = self.readFromLocalStorage("unsavedNotes");
-    return !!unsavedNoteIds ? unsavedNoteIds : [];
+    var offlineActions = self.readFromLocalStorage("offlineActions");
+    return !!offlineActions ? offlineActions : [];
   }
   return [];
 };
@@ -272,11 +300,14 @@ NoteController.prototype.unsavedNoteIds = function() {
  * Removes a noteId from the list of notes that have not yet been saved.
  * @void
  */
-NoteController.prototype.noteHasBeenSaved = function(key) {
+NoteController.prototype.offlineActionHasBeenPerformed = function(key) {
   var self = this;
   if (self.hasLocalStorage) {
-    var unsavedNotes = self.unsavedNoteIds();
-    self.writeToLocalStorage("unsavedNotes", _.without(unsavedNotes, key));
+    var offlineActions = self.offlineActions();
+    // Store all the offline actions except the one for the given key
+    self.writeToLocalStorage("offlineActions", _.select(offlineActions, function(data) {
+      return data.id != key;
+    }));
   }
 };
 
