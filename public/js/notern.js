@@ -12,29 +12,57 @@ function Notern() {
  * Perform init functions to setup of the notern client
  */
 Notern.prototype.init = function() {
+  console.log("in init");
   var self = this;
-  self.noteTemplate = self.compileNotesDirective();
-  // Add a listener for new notes
-  $("#newnoteform").submit(function() {
-    var note = new Note({content: $("#notetext").val(), metadata: "random metadata"});
-    note.save();
-    self.renderNote(note);
-    return false;
-  });
+  self.compileTemplates();
+
+  // Get a new NoteController
+  self.noteController = new NoteController({useLocalStorage: true});
+
+  // Add event listeners
+  self.initEventlisteners();
+
+  // Load the notes
+  // NOTE: Initializing the notes has to happen 
+  // AFTER the event listeners have been added!
+  // Otherwise the existing notes are not added.
+  self.noteController.initNotes();
 };
 
 
 /**
- * Render all notes.
- * Clears all preexisting notes in the view and
- * renders all the notes in the system
+ * Setting up the required event listeners for the application
  * @void
  */
-Notern.prototype.renderAllNotes = function() {
+Notern.prototype.initEventlisteners = function() {
+  console.log("add init event listener");
   var self = this;
-  var allNotes = noteController.getAll();
-  _.each(allNotes, function(note) { self.renderNote(note); });
-}
+  // Listen for the user submitting new notes
+  $("#addNoteButton").click(function() {
+    console.log("in the submit listener");
+    self.noteController.newNote({
+      content: $("#notetext").val(), 
+      metadata: "random metadata"
+    }).save();
+    return false;
+  });
+  // Listen to new notes being added
+  $(self.noteController).bind('addedNewNote', function(event, note) {
+    console.log("received new note to render: " + note.noteId());
+    self.renderNote(note);
+    // TODO: Listen to note change and rerender it
+    // TODO: Render the note
+  });
+};
+
+/**
+ * Compile the tempaltes needed for the frontend
+ * @void
+ */
+Notern.prototype.compileTemplates = function() {
+  var self = this;
+  self.noteTemplate = self.compileNotesDirective();
+};
 
 
 /**
@@ -46,11 +74,12 @@ Notern.prototype.renderAllNotes = function() {
  */
 Notern.prototype.renderNote = function(note) {
   var self = this;
-  var noteId = note.noteId;
+  var noteJson = note.data;
+  var noteId = note.noteId();
   // Check if there is an existing rendered version of this node
   // and then replace it.
-  var renderedNote = self.noteTemplate(note);
-  $("#main").append(renderedNote);
+  var renderedNote = self.noteTemplate(noteJson);
+  $("#main").prepend(renderedNote);
 };
 
 
@@ -61,8 +90,9 @@ Notern.prototype.renderNote = function(note) {
  */
 Notern.prototype.compileNotesDirective = function() {
 	var notesDirectives = {
-    "div.metadata":'metadata',
-    "div.content":'content'
+    "div.note@id":'noteId',
+    "div div.metadata":'metadata',
+    "div div.content":'content'
 	};
-	return $p("div#templates div.note").compile(notesDirectives);
+	return $p("div#templates div.notes").compile(notesDirectives);
 };
