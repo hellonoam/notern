@@ -14,6 +14,38 @@ function Note(data) {
   };
 };
 
+/**
+ * Find distance between note's location and the supplied location.
+ * @params
+ *  location HTML5 position we wish to find distance to.
+ *  radius Radius of the planet we're interested in (defaults to Earth).
+ * @returns
+ *   distance in kilometres between the note's and the supplied location.
+ */
+Note.prototype.distanceTo = function(location, radius) {
+  // Adapted from http://www.movable-type.co.uk/scripts/latlong.html
+  if (typeof(radius) == 'undefined') radius = 6371;  // earth's radius (km)
+
+  var radians = function(degrees) {
+    return degrees * Math.PI / 180;
+  }
+
+  var fromLat = radians(this.data.geo.lat);
+  var fromLon = radians(this.data.geo.lon);
+  var toLat = radians(location.coords.latitude);
+  var toLon = radians(location.coords.longitude);
+  
+  var dLat = toLat - fromLat;
+  var dLon = toLon - fromLon;
+
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(fromLat) * Math.cos(toLat) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = radius * c;
+
+  return d;
+}
 
 /**
  * Saves a node to the local datastore
@@ -161,20 +193,3 @@ Note.prototype.isPendingDelete = function() {
   var self = this;
   return !_.isUndefined(self.data["pendingDelete"]);
 };
-
-
-/**
- * Distance from a given lat and lng
- * @params
- *  lat
- *  lng
- * @returns
- *  returns numerical distance in meter between the location passed as a parameter
- *    and the notes location
- */
-Note.prototype.distance = function() {
-  // TODO
-};
-
-
-// TODO: class method to validate json and insert geo info if needed

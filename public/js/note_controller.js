@@ -14,20 +14,25 @@ function NoteController(config) {
     self.settings["useLocalStorage"] = false;
   };
 
-  self.getCurrentUserLocation();
+  self.locationWatch =
+    navigator.geolocation.watchPosition(
+        self.updateUserLocation(this),
+        function(error) {
+            // Don't freak out... yet
+        }
+    );
 };
 
 
 /**
- * Gets the users current geo location
- * @void
+ * Updates the user's stored location.
+ * @param location The new location.
  */
-NoteController.prototype.getCurrentUserLocation = function() {
-  var self = this;
-  self.geoLocation = null; // TODO: fill in correct user location
-  // TODO: Potentially setInterval(function to get geo location, time in ms);
-};
-
+NoteController.prototype.updateUserLocation = function(controller) {
+    return function(location) {
+        controller.location = location;
+    };
+}
 
 /**
  * Loads all notes from the local store into
@@ -56,8 +61,8 @@ NoteController.prototype.initNotes = function() {
  */
 NoteController.prototype.getAllSortedByDistance = function() {
   var self = this;
-  // TODO: add proper self.location() (?)
-  return _.sortBy(self.validNotes(), function(note) { note.distance(self.location); });
+  return _.sortBy(self.validNotes(),
+                  function(note) { note.distanceTo(self.location); });
 };
 
 
@@ -206,7 +211,14 @@ NoteController.prototype.getLatestNotesFromServer = function() {
  */
 NoteController.prototype.newNote = function(noteJson) {
   var self = this;
-  // TODO: use Note class method to insert geo into json if needed
+  
+  // If the note doesn't have a location, add the current one.
+  if (!noteJson["geo"]) {
+      var coords = self.location.coords;
+      var geo = {lat: coords.latitude, long: coords.longitude};
+      noteJson["geo"] = geo;
+  }
+  
   var newNote = new Note(noteJson);
   $(newNote).bind('noteAdded', function(event) {
     console.log("Controller got notified about note being added");
