@@ -4,7 +4,6 @@
  */
 function Note(data) {
   var self = this;
-  console.log("In Note constructor got data: " + data);
   self.data = typeof(data) != 'undefined' ? data : {};
 };
 
@@ -17,6 +16,10 @@ function Note(data) {
  */
 Note.prototype.destroy = function() {
   var self = this;
+  // Let observers know that the note destroyed itself
+  $(self).trigger('destroy');
+  // TODO: Add a method for catching errors and destroy later
+  // when online again!
   $.ajax({
     type: 'DELETE',
     url: '/user/sebastian/notes/' + self.data.noteId,
@@ -31,47 +34,41 @@ Note.prototype.destroy = function() {
  */
 Note.prototype.save = function() {
   var self = this;
-  // Update the lastModified time
-  self.data.lastModified = new Date().getTime();
+
+  // TODO: Add some state that indicates if a note has been saved
+  // or not that can be shown to the user
+
   // If it is a new object, set the createdAt time
-  if (self.data.createdAt == null) {
+  var METHOD = "";
+  var serverUrl = "/user/sebastian/notes/";
+  if (self.noteId() == null) {
+    // This is a new note, so it should be created with POST
+    METHOD = "POST";
+    // We also need to set initial values
     self.data.createdAt = new Date().getTime();
-  };
-  // Create or update as needed.
-  if (self.data.noteId == null) {
-    // This is a new item, create it
-    console.log("Creating note: " + self);
-    $.post("/user/sebastian/notes", self.data, function(data) {
-      self.postCreateUpdateHook(data);
-    }, "json");
+    var key = Sha1.hash(JSON.stringify(self));
+    self.data.noteId = key;
   } else {
-    // This is an existing item, update it
-    var noteId = self.data.noteId;
-    $.put('/user/sebastian/notes/' + noteId, self.data, function(data) { self.postCreateUpdateHook(data); }, "json");
+    METHOD = "PUT";
+    serverUrl = serverUrl + self.noteId();
   };
-};
+  // The note is changed, so update the last modified time
+  self.data.lastModified = new Date().getTime();
 
+  $.ajax({
+    type: METHOD,
+    url: serverUrl,
+    data: self.data,
+    success: function(data) { 
+      console.log("note was saved"); 
+    },
+    error: function(data) { 
+      console.log("note saving FAILED. handle"); 
+      $(self).trigger('serverSaveFailed');
+    }
+  });
 
-/**
- * This method is called after a the server has received an updated note.
- * It tells the NodeController to update its local store accordingly.
- * @void
- */
-Note.prototype.postCreateUpdateHook = function(noteData) {
-  var self = this;
-  self.data = noteData; // Update the local data state
-  noteController.addToLocalStore(noteData);
-};
-
-
-/**
- * This method is called after a note has been deleted.
- * It removes it from the local 
- * It tells the NoteController to update its local store accordingly.
- * @void
- */
-Note.prototype.postDestroyHook = function(noteData) {
-  noteContoller.removeFromLocalStore(noteData.data.noteId);
+  $(self).trigger('noteAdded');
 };
 
 
@@ -82,4 +79,26 @@ Note.prototype.postDestroyHook = function(noteData) {
  */
 Note.prototype.noteId = function() {
   return this.data.nodeId;
+};
+
+
+/**
+ * Getter fro the creation time
+ * @returns
+ *  number of seconds between epoch and time of creation
+ */
+Note.prototype.createdAt = function() {
+  var self = this;
+  self.data.createdAt;
+};
+
+
+/**
+ * Getter fro the creation time
+ * @returns
+ *  number of seconds between epoch and time of creation
+ */
+Note.prototype.lastModified = function() {
+  var self = this;
+  self.data.lastModified;
 };
