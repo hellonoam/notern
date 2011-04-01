@@ -33,12 +33,20 @@ Notern.prototype.init = function() {
 		self.hidePopup();
 };
 
+
+function textAreaAdjust(o) {
+    o.style.height = "1px";
+    o.style.height = (10+o.scrollHeight)+"px";
+};
+
+
 /*
  * returns whether or not the user is currently logged in
  */
 Notern.prototype.isLoggedIn = function() {
 	return false;
 }
+
 
 /*
  * logs the user in by sending the credentials to the server
@@ -124,13 +132,14 @@ Notern.prototype.initEventlisteners = function() {
   var self = this;
   // Listen for the user submitting new notes
   $("#addNoteButton").click(function() {
-    console.log("in the submit listener");
+    var noteText = $("#notetext").val();
+    $("#notetext").val("");
     var note = self.noteController.newNote({
-      content: $("#notetext").val(), 
-      metadata: "random metadata",
+      content: noteText,
       geo: self.geoData
     });
     self.noteController.save(note);
+
     return false;
   });
   // Listen to new notes being added
@@ -214,6 +223,7 @@ Notern.prototype.renderNote = function(note) {
   $("#" + noteId + " div.deleteNote a").click(function() {
     self.noteController.destroy(note);
   });
+  $("#" + noteId).slideDown('slow');
 };
 
 
