@@ -35,6 +35,11 @@ Notern.prototype.login = function(username, password) {
 	$.post("/login", {username: username, password:password});
 }
 
+Notern.prototype.logout = function() {
+	var self = this;
+	self.noteController.setUserName("");
+	$.get("/logout");
+}
 
 Notern.prototype.signup = function(username, password, email) {
 	var self = this;
