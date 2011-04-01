@@ -50,6 +50,10 @@ Notern.prototype.initEventlisteners = function() {
   $(self.noteController).bind('addedNewNote', function(event, note) {
     console.log("received new note to render: " + note.noteId());
     self.renderNote(note);
+    $(note).bind('destroy', function(event) {
+      var theNote = event.eventTarget;
+      self.destroyNote(theNote);
+    });
     // TODO: Listen to note change and rerender it
     // TODO: Render the note
   });
@@ -72,6 +76,27 @@ Notern.prototype.compileTemplates = function() {
  * bottom of the list of notes
  * @void
  */
+Notern.prototype.destroyNote = function(note) {
+  $(note.noteId()).fadeOut(500, function(dom) {
+    
+  });
+  var self = this;
+  var noteJson = note.data;
+  var noteId = note.noteId();
+  // Check if there is an existing rendered version of this node
+  // and then replace it.
+  var renderedNote = self.noteTemplate(noteJson);
+  $("#notes").prepend(renderedNote);
+};
+
+
+/**
+ * Renders a particular note.
+ * If it has previously been rendered in the DOM,
+ * then it will be replaced. If not it is added to the
+ * bottom of the list of notes
+ * @void
+ */
 Notern.prototype.renderNote = function(note) {
   var self = this;
   var noteJson = note.data;
@@ -79,7 +104,7 @@ Notern.prototype.renderNote = function(note) {
   // Check if there is an existing rendered version of this node
   // and then replace it.
   var renderedNote = self.noteTemplate(noteJson);
-  $("#main").prepend(renderedNote);
+  $("#notes").prepend(renderedNote);
 };
 
 
