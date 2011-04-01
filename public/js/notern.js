@@ -113,9 +113,9 @@ Notern.prototype.renderNote = function(note) {
 Notern.prototype.compileNotesDirective = function() {
 	var notesDirectives = {
     "div.note@id":'noteId',
-    "div div.deleteNote a@data-id":'noteId',
-    "div div.metadata":'metadata',
-    "div div.content":'content'
+    "div div div.metadata div.stats":'metadata',
+    "div div div.metadata div.deleteNote a@data-id":'noteId',
+    "div div div.content":'content'
 	};
 	return $p("div#templates div.notes").compile(notesDirectives);
 };
