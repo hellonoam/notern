@@ -14,20 +14,59 @@ function NoteController(config) {
     self.settings["useLocalStorage"] = false;
   };
 
-  self.getCurrentUserLocation();
+  self.userName = self.getUsernameFromLocalStorage();
+
+  if (navigator.geolocation) {
+    self.geocoder = new google.maps.Geocoder();
+    self.locationWatch =
+        navigator.geolocation.watchPosition(
+            self.updateUserLocation(self),
+            function(error) {
+                // Don't freak out... yet
+            }
+    );
+  }
 };
 
 
 /**
- * Gets the users current geo location
+ * Set the name of the current logged in user
+ * @param
+ *  username : username that is used against the web api
  * @void
  */
-NoteController.prototype.getCurrentUserLocation = function() {
+NoteController.prototype.setUserName = function(username) {
   var self = this;
-  self.geoLocation = null; // TODO: fill in correct user location
-  // TODO: Potentially setInterval(function to get geo location, time in ms);
+  self.userName = username;
+  // Check if the data in the local storage is for this user
+  var userForData = self.readFromLocalStorage("ownerOfData");
+  if (userForData != username) {
+    self.emptyDatabase();
+    self.writeToLocalStorage("ownerOfData", username);
+  }
 };
 
+
+/**
+ * Updates the user's stored location.
+ * @param location The new location.
+ */
+NoteController.prototype.updateUserLocation = function(controller) {
+    return function(location) {
+        controller.location = location;
+        var latlng = new google.maps.LatLng(
+            location.coords.latitude, location.coords.longitude);
+            
+        controller.geocoder.geocode(
+            {'latLng': latlng},
+            function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0])
+                        controller.locationName = results[0].formatted_address;
+                }
+            });
+    };
+};
 
 /**
  * Loads all notes from the local store into
@@ -56,8 +95,8 @@ NoteController.prototype.initNotes = function() {
  */
 NoteController.prototype.getAllSortedByDistance = function() {
   var self = this;
-  // TODO: add proper self.location() (?)
-  return _.sortBy(self.validNotes(), function(note) { note.distance(self.location); });
+  return _.sortBy(self.validNotes(),
+                  function(note) { note.distanceTo(self.location); });
 };
 
 
@@ -171,7 +210,7 @@ NoteController.prototype.persistNotesToLocalStorage = function() {
  */
 NoteController.prototype.getLatestNotesFromServer = function() {
   var self = this;
-  var url = "/user/sebastian/notes";
+  var url = "/user/" + self.userName + "/notes";
   if (self.hasLocalStorage) {
     var lastModified = self.lastModified();
     if (lastModified != 0) {
@@ -197,6 +236,73 @@ NoteController.prototype.getLatestNotesFromServer = function() {
 
 
 /**
+ * Destroys a particular note
+ * @void
+ */
+NoteController.prototype.save = function(note) {
+  var self = this;
+
+  // If it is a new object, set the createdAt time
+  var METHOD = "";
+  var serverUrl = "/user/" + self.userName + "/notes/";
+  if (note.isNew()) {
+    // This is a new note, so it should be created with POST
+    METHOD = "POST";
+  } else {
+    METHOD = "PUT";
+    serverUrl = serverUrl + note.noteId();
+  };
+  // The note is changed, so update the last modified time
+  note.data.lastModified = new Date().getTime();
+
+  $.ajax({
+    type: METHOD,
+    url: serverUrl,
+    data: note.data,
+    success: function(data) { 
+      note.data.lastSaved = new Date().getTime();
+      $(note).trigger('noteSaved');
+      note.rerenderNote();
+    },
+    error: function(data) { 
+      $(note).trigger('serverSaveFailed');
+    }
+  });
+
+  $(note).trigger('noteAdded');
+};
+
+
+/**
+ * Removes the note from the local storage
+ * and from the server.
+ * @params:
+ *  note : the note to destroy
+ * @void
+ */
+NoteController.prototype.destroy = function(note) {
+  var self = this;
+  // TODO: Add a method for catching errors and destroy later
+  // when online again!
+  $.ajax({
+    type: 'DELETE',
+    url: '/user/' + self.userName + '/notes/' + note.noteId(),
+    error: function() {
+      note.data["pendingDelete"] = true;
+      console.log("Failed at deleting node... will retry");
+      $(note).trigger('serverDeleteFailed');
+    },
+    success: function() {
+      $(note).trigger('destroySuccessful');
+      console.log("Note successfully destroyed at server...");
+    }
+  });
+  // Let observers know that the note destroyed itself
+  $(note).trigger('noteDestroyed');
+};
+
+
+/**
  * Returns a new note object that the note controller
  * has registered to handle events for
  * @params:
@@ -206,7 +312,15 @@ NoteController.prototype.getLatestNotesFromServer = function() {
  */
 NoteController.prototype.newNote = function(noteJson) {
   var self = this;
-  // TODO: use Note class method to insert geo into json if needed
+  
+  // If the note doesn't have a location, add the current one.
+  if (self.location && !noteJson["geo"]) {
+      var coords = self.location.coords;
+      var geo = {lat: coords.latitude, long: coords.longitude};
+      noteJson["geo"] = geo;
+      if (self.locationName) noteJson["geoName"] = self.locationName;
+  }
+  
   var newNote = new Note(noteJson);
   $(newNote).bind('noteAdded', function(event) {
     console.log("Controller got notified about note being added");
@@ -250,7 +364,7 @@ NoteController.prototype.performOfflineActions = function() {
       if (data.action == "save") {
         console.log("trying to save the unsaved note:");
         console.log(note);
-        note.save();
+        self.save(note);
       } else if (data.action == "destroy") {
         note.destroy();
       };
@@ -299,7 +413,6 @@ NoteController.prototype.registerOfflineAction = function(data) {
   var self = this;
   if (self.hasLocalStorage) {
     var offlineActions = self.offlineActions();
-    debugger
     if (_.indexOf(offlineActions, data) == -1) {
       offlineActions.push(data);
       self.writeToLocalStorage("offlineActions", offlineActions);
@@ -336,6 +449,25 @@ NoteController.prototype.offlineActionHasBeenPerformed = function(key) {
       return data.id != key;
     }));
   }
+};
+
+
+/**
+ * Removes a noteId from the list of notes that have not yet been saved.
+ * @void
+ */
+NoteController.prototype.getUsernameFromLocalStorage = function() {
+  var self = this;
+  var defaultUser = "defaultUser";
+  if (self.hasLocalStorage) {
+    var username = self.readFromLocalStorage("ownerOfData");
+    if (username == null) {
+      return defaultUser;
+    } else {
+      return username;
+    };
+  }
+  return defaultUser;
 };
 
 

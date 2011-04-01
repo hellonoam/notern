@@ -14,77 +14,41 @@ function Note(data) {
   };
 };
 
-
 /**
- * Saves a node to the local datastore
- * and to the server.
- * @returns:
- *    an array of notes
+ * Find distance between note's location and the supplied location.
+ * @params
+ *  location HTML5 position we wish to find distance to.
+ *  radius Radius of the planet we're interested in (defaults to Earth).
+ * @returns
+ *   distance in kilometres between the note's and the supplied location,
+ *            or ZERO if location is undefined.
  */
-Note.prototype.destroy = function() {
-  var self = this;
-  // TODO: Add a method for catching errors and destroy later
-  // when online again!
-  $.ajax({
-    type: 'DELETE',
-    url: '/user/sebastian/notes/' + self.data.noteId,
-    error: function() {
-      self.data["pendingDelete"] = true;
-      console.log("Failed at deleting node... will retry");
-      $(self).trigger('serverDeleteFailed');
-    },
-    success: function() {
-      $(self).trigger('destroySuccessful');
-      console.log("Note successfully destroyed at server...");
-    }
-  });
-  // Let observers know that the note destroyed itself
-  $(self).trigger('noteDestroyed');
-};
+Note.prototype.distanceTo = function(location, radius) {
+  // Adapted from http://www.movable-type.co.uk/scripts/latlong.html
+  
+  if (typeof(location) == 'undefined') return 0;
+  if (typeof(radius) == 'undefined') radius = 6371;  // earth's radius (km)
 
+  var radians = function(degrees) {
+    return degrees * Math.PI / 180;
+  }
 
-/**
- * Destroys a particular note
- * @void
- */
-Note.prototype.save = function() {
-  var self = this;
-  console.log("is this note new? " + self.isNew() + ", what is last saved? " + self.data.lastSaved);
-  console.log(self);
-  // TODO: Add some state that indicates if a note has been saved
-  // or not that can be shown to the user
+  var fromLat = radians(this.data.geo.lat);
+  var fromLon = radians(this.data.geo.lon);
+  var toLat = radians(location.coords.latitude);
+  var toLon = radians(location.coords.longitude);
+  
+  var dLat = toLat - fromLat;
+  var dLon = toLon - fromLon;
 
-  // If it is a new object, set the createdAt time
-  var METHOD = "";
-  var serverUrl = "/user/sebastian/notes/";
-  if (self.isNew()) {
-    // This is a new note, so it should be created with POST
-    METHOD = "POST";
-  } else {
-    METHOD = "PUT";
-    serverUrl = serverUrl + self.noteId();
-  };
-  // The note is changed, so update the last modified time
-  self.data.lastModified = new Date().getTime();
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(fromLat) * Math.cos(toLat) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = radius * c;
 
-  $.ajax({
-    type: METHOD,
-    url: serverUrl,
-    data: self.data,
-    success: function(data) { 
-      console.log("note was saved"); 
-      self.data.lastSaved = new Date().getTime();
-      $(self).trigger('noteSaved');
-      self.rerenderNote();
-    },
-    error: function(data) { 
-      console.log("note saving FAILED. handle"); 
-      $(self).trigger('serverSaveFailed');
-    }
-  });
-
-  $(self).trigger('noteAdded');
-};
+  return d;
+}
 
 
 /**
@@ -161,20 +125,3 @@ Note.prototype.isPendingDelete = function() {
   var self = this;
   return !_.isUndefined(self.data["pendingDelete"]);
 };
-
-
-/**
- * Distance from a given lat and lng
- * @params
- *  lat
- *  lng
- * @returns
- *  returns numerical distance in meter between the location passed as a parameter
- *    and the notes location
- */
-Note.prototype.distance = function() {
-  // TODO
-};
-
-
-// TODO: class method to validate json and insert geo info if needed
