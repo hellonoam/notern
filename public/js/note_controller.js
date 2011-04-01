@@ -13,6 +13,19 @@ function NoteController(config) {
     // Default to not using local storage if not defined otherwise
     self.settings["useLocalStorage"] = false;
   };
+
+  self.getCurrentUserLocation();
+};
+
+
+/**
+ * Gets the users current geo location
+ * @void
+ */
+NoteController.prototype.getCurrentUserLocation = function() {
+  var self = this;
+  self.geoLocation = null; // TODO: fill in correct user location
+  // TODO: Potentially setInterval(function to get geo location, time in ms);
 };
 
 
@@ -32,6 +45,19 @@ NoteController.prototype.initNotes = function() {
     console.log("trying to save unsaved notes");
     self.performOfflineActions();
   }, 30000);
+};
+
+
+/**
+ * Returns all notes for the current user sorted by increasing distance from
+ * the users current location
+ * @returns:
+ *   List of all notes sorted by distance
+ */
+NoteController.prototype.getAllSortedByDistance = function() {
+  var self = this;
+  // TODO: add proper self.location() (?)
+  return _.sortBy(self.validNotes(), function(note) { note.distance(self.location); });
 };
 
 
@@ -180,6 +206,7 @@ NoteController.prototype.getLatestNotesFromServer = function() {
  */
 NoteController.prototype.newNote = function(noteJson) {
   var self = this;
+  // TODO: use Note class method to insert geo into json if needed
   var newNote = new Note(noteJson);
   $(newNote).bind('noteAdded', function(event) {
     console.log("Controller got notified about note being added");

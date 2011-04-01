@@ -42,7 +42,8 @@ Notern.prototype.initEventlisteners = function() {
     console.log("in the submit listener");
     self.noteController.newNote({
       content: $("#notetext").val(), 
-      metadata: "random metadata"
+      metadata: "random metadata",
+      geo: self.geoData
     }).save();
     return false;
   });

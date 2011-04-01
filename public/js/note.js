@@ -161,3 +161,20 @@ Note.prototype.isPendingDelete = function() {
   var self = this;
   return !_.isUndefined(self.data["pendingDelete"]);
 };
+
+
+/**
+ * Distance from a given lat and lng
+ * @params
+ *  lat
+ *  lng
+ * @returns
+ *  returns numerical distance in meter between the location passed as a parameter
+ *    and the notes location
+ */
+Note.prototype.distance = function() {
+  // TODO
+};
+
+
+// TODO: class method to validate json and insert geo info if needed
