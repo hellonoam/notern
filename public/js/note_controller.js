@@ -16,13 +16,16 @@ function NoteController(config) {
 
   self.userName = self.getUsernameFromLocalStorage();
 
-  self.locationWatch =
-    navigator.geolocation.watchPosition(
-        self.updateUserLocation(this),
-        function(error) {
-            // Don't freak out... yet
-        }
+  if (navigator.geolocation) {
+    self.geocoder = new google.maps.Geocoder();
+    self.locationWatch =
+        navigator.geolocation.watchPosition(
+            self.updateUserLocation(self),
+            function(error) {
+                // Don't freak out... yet
+            }
     );
+  }
 };
 
 
@@ -51,8 +54,19 @@ NoteController.prototype.setUserName = function(username) {
 NoteController.prototype.updateUserLocation = function(controller) {
     return function(location) {
         controller.location = location;
+        var latlng = new google.maps.LatLng(
+            location.coords.latitude, location.coords.longitude);
+            
+        controller.geocoder.geocode(
+            {'latLng': latlng},
+            function(results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0])
+                        controller.locationName = results[0].formatted_address;
+                }
+            });
     };
-}
+};
 
 /**
  * Loads all notes from the local store into
@@ -300,10 +314,11 @@ NoteController.prototype.newNote = function(noteJson) {
   var self = this;
   
   // If the note doesn't have a location, add the current one.
-  if (!noteJson["geo"] && self.location) {
+  if (self.location && !noteJson["geo"]) {
       var coords = self.location.coords;
       var geo = {lat: coords.latitude, long: coords.longitude};
       noteJson["geo"] = geo;
+      if (self.locationName) noteJson["geoName"] = self.locationName;
   }
   
   var newNote = new Note(noteJson);

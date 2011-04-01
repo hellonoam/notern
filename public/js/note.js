@@ -20,10 +20,13 @@ function Note(data) {
  *  location HTML5 position we wish to find distance to.
  *  radius Radius of the planet we're interested in (defaults to Earth).
  * @returns
- *   distance in kilometres between the note's and the supplied location.
+ *   distance in kilometres between the note's and the supplied location,
+ *            or ZERO if location is undefined.
  */
 Note.prototype.distanceTo = function(location, radius) {
   // Adapted from http://www.movable-type.co.uk/scripts/latlong.html
+  
+  if (typeof(location) == 'undefined') return 0;
   if (typeof(radius) == 'undefined') radius = 6371;  // earth's radius (km)
 
   var radians = function(degrees) {
