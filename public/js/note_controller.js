@@ -311,7 +311,6 @@ NoteController.prototype.registerOfflineAction = function(data) {
   var self = this;
   if (self.hasLocalStorage) {
     var offlineActions = self.offlineActions();
-    debugger
     if (_.indexOf(offlineActions, data) == -1) {
       offlineActions.push(data);
       self.writeToLocalStorage("offlineActions", offlineActions);
