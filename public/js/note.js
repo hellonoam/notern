@@ -4,7 +4,14 @@
  */
 function Note(data) {
   var self = this;
+  
+  // Set initial values
   self.data = typeof(data) != 'undefined' ? data : {};
+  self.data.createdAt = new Date().getTime();
+  if (self.data.noteId == null) {
+    var noteId = Sha1.hash(JSON.stringify(self));
+    self.data.noteId = noteId;
+  };
 };
 
 
@@ -41,13 +48,9 @@ Note.prototype.save = function() {
   // If it is a new object, set the createdAt time
   var METHOD = "";
   var serverUrl = "/user/sebastian/notes/";
-  if (self.noteId() == null) {
+  if (self.isNew()) {
     // This is a new note, so it should be created with POST
     METHOD = "POST";
-    // We also need to set initial values
-    self.data.createdAt = new Date().getTime();
-    var key = Sha1.hash(JSON.stringify(self));
-    self.data.noteId = key;
   } else {
     METHOD = "PUT";
     serverUrl = serverUrl + self.noteId();
@@ -61,6 +64,9 @@ Note.prototype.save = function() {
     data: self.data,
     success: function(data) { 
       console.log("note was saved"); 
+      self.data.lastSaved = new Data().getTime();
+      $(self).trigger('noteSaved');
+      self.rerenderNote();
     },
     error: function(data) { 
       console.log("note saving FAILED. handle"); 
@@ -83,6 +89,16 @@ Note.prototype.noteId = function() {
 
 
 /**
+ * Asks for the note to be rerendered
+ * @void
+ */
+Note.prototype.rerenderNote = function() {
+  var self = this;
+  $(self).trigger('rerenderNote');
+};
+
+
+/**
  * Getter fro the creation time
  * @returns
  *  number of seconds between epoch and time of creation
@@ -90,6 +106,28 @@ Note.prototype.noteId = function() {
 Note.prototype.createdAt = function() {
   var self = this;
   self.data.createdAt;
+};
+
+
+/**
+ * Whether or not the note has ever been saved
+ * @returns
+ *  boolean true if has unsaved changes
+ */
+Note.prototype.isNew = function() {
+  var self = this;
+  return !!self.data.lastSaved;
+};
+
+
+/**
+ * Whether or not the note has unsaved changes
+ * @returns
+ *  boolean true if has unsaved changes
+ */
+Note.prototype.isUnsaved = function() {
+  var self = this;
+  return self.data.lastSaved < self.data.lastModified;
 };
 
 

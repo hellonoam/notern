@@ -27,6 +27,10 @@ NoteController.prototype.initNotes = function() {
   self.notes = {};
   self.loadNotesFromLocalStore();
   self.getLatestNotesFromServer();
+  setInterval(function() {
+    console.log("trying to save unsaved notes");
+    self.saveUnsavedNotes();
+  }, 5000);
 };
 
 
@@ -55,10 +59,16 @@ NoteController.prototype.addNotes = function(notes) {
     if (!self.notes[note.noteId()]) {
       // The note is new so we need to 
       $(self).trigger('addedNewNote', [note]);
+    } else {
+      // The note already exists, meaning we have
+      // added listeners for it.
+      // We therefore have to unbind before we 
+      // replace the note
+      var theNote = self.notes[note.noteId()];
+      $(theNote).unbind();
     };
     self.notes[note.noteId()] = note;
     hasNewNotes = true;
-
     // Listen to the note destroying itself
     $(note).bind('destroy', function(event) {
       var theNote = event.currentTarget;
@@ -166,12 +176,33 @@ NoteController.prototype.newNote = function(noteJson) {
     var theNote = event.currentTarget;
     self.addNote(theNote);
   });
-//  $(newNote).bind('serverSaveFailed', function(event) {
-//    var theNote = event.currentTarget;
-//    console.log("Controller got notified about note not being save to server");
-//    // TODO: Add to list of notes that are saved
-//  });
+  $(newNote).bind('noteSaved', function(event) {
+    var theNote = event.eventTarget;
+    self.noteHasBeenSaved(theNote.noteId());
+    self.persistNotesToLocalStorage();
+    console.log("Controller got notified about note being saved to server");
+  });
+  $(newNote).bind('serverSaveFailed', function(event) {
+    var theNote = event.currentTarget;
+    console.log("Controller got notified about note not being save to server");
+    self.registerUnsavableNote(theNote.noteId());
+  });
   return newNote;
+};
+
+
+/**
+ * Saves unsaved notes
+ */
+NoteController.prototype.saveUnsavedNotes = function() {
+  var self = this;
+  var unsavedNotesIds = self.unsavedNoteIds();
+  _.each(unsavedNotesIds, function(noteId) {
+    var note = self.notes[noteId];
+    console.log("trying to save the unsaved note:");
+    console.log(note);
+    note.save();
+  });
 };
 
 /**
@@ -199,6 +230,54 @@ NoteController.prototype.setLastModifiedIfGreater = function(time) {
   if (previousLastModified < time) {
     this.writeToLocalStorage("lastModified", time);
   };
+};
+
+
+/**
+ * Registers that a particular key couldn't be stored to the database.
+ * It will be saved at a later time.
+ * @params
+ *  key : the key of the note that couldn't be saved.
+ * @void
+ */
+NoteController.prototype.registerUnsavableNote = function(key) {
+  var self = this;
+  if (self.hasLocalStorage) {
+    var unsavedNotes = self.unsavedNoteIds();
+    if (_.indexOf(unsavedNotes, key) == -1) {
+      unsavedNotes.push(key);
+      self.writeToLocalStorage("unsavedNotes", unsavedNotes);
+    }
+  }
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+
+/**
+ * All the noteIds that haven't currently been saved to the database
+ * @returns
+ *  A list of all the note id's that have yet to be saved to the database
+ */
+NoteController.prototype.unsavedNoteIds = function() {
+  var self = this;
+  if (self.hasLocalStorage && self.readFromLocalStorage != null) {
+    var unsavedNoteIds = self.readFromLocalStorage("unsavedNotes");
+    return !!unsavedNoteIds ? unsavedNoteIds : [];
+  }
+  return [];
+};
+
+
+/**
+ * Removes a noteId from the list of notes that have not yet been saved.
+ * @void
+ */
+NoteController.prototype.noteHasBeenSaved = function(key) {
+  var self = this;
+  if (self.hasLocalStorage) {
+    var unsavedNotes = self.unsavedNoteIds();
+    self.writeToLocalStorage("unsavedNotes", _.without(unsavedNotes, key));
+  }
 };
 
 

@@ -55,7 +55,6 @@ Notern.prototype.initEventlisteners = function() {
       self.destroyNote(theNote);
     });
     // TODO: Listen to note change and rerender it
-    // TODO: Render the note
   });
 };
 
@@ -78,7 +77,7 @@ Notern.prototype.compileTemplates = function() {
  */
 Notern.prototype.destroyNote = function(note) {
   $(note.noteId()).fadeOut(500, function(dom) {
-    
+    $(dom).remove();
   });
   var self = this;
   var noteJson = note.data;
