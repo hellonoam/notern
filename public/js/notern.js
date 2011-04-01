@@ -26,31 +26,95 @@ Notern.prototype.init = function() {
   // AFTER the event listeners have been added!
   // Otherwise the existing notes are not added.
   self.noteController.initNotes();
+
+	if (!self.isLoggedIn())
+		self.showPopup();
+	else
+		self.hidePopup();
 };
+
 
 function textAreaAdjust(o) {
     o.style.height = "1px";
     o.style.height = (10+o.scrollHeight)+"px";
 };
 
-Notern.prototype.login = function(username, password) {
-	var self = this;
-	self.noteController.setUserName(username);
-	$.post("/login", {username: username, password:password});
+
+/*
+ * returns whether or not the user is currently logged in
+ */
+Notern.prototype.isLoggedIn = function() {
+	return false;
 }
 
+
+/*
+ * logs the user in by sending the credentials to the server
+ */
+Notern.prototype.login = function(username, password, succCallback, errCallback) {
+	var self = this;
+	self.noteController.setUserName(username);
+	$.ajax({
+		url: "/login",
+		type: "post",
+		data: {username:username, password:password},
+		success: succCallback,
+		error: errCallback
+	});
+}
+
+/*
+ * logs the user out of the system, by sendina  request to the server
+ */
 Notern.prototype.logout = function() {
 	var self = this;
 	self.noteController.setUserName("");
 	$.get("/logout");
 }
 
-Notern.prototype.signup = function(username, password, email) {
+/*
+ * signs the user in to the system by sending a request to the server with the credentials given
+ */
+Notern.prototype.signup = function(username, password, email, callback) {
 	var self = this;
 	self.noteController.setUserName(username);
-	$.post("/signup", {username:username, password:password, email:email});
+	$.post("/signup", {username: username, password:password, email:email}, callback);
 }
 
+/*
+ * hides the signup/login popup
+ */
+Notern.prototype.hidePopup = function() {
+	$("#popup").hide();
+}
+
+/*
+ * hides the main website and only shows the login/signup popup
+ */
+Notern.prototype.showPopup = function() {
+	var self = this;
+	var hidePopupShowRest = function() {
+		self.hidePopup();
+		$("#main").show();
+	};
+	$("#main").hide();
+	$("#signup-button").click(function() {
+		self.signup($("#signup-username").val(),$("#signup-password").val(), $("#signup-email").val(),
+		function(response) {
+			console.log("response " + response);
+			if (response == "")
+				hidePopupShowRest()
+			else if (response == "in-use")
+				$("#signup-username").addClass("error");
+		});
+	});
+	$("#login-button").click(function() {
+		self.login($("#login-username").val(), $("#login-password").val(), hidePopupShowRest, function() {
+			$("#login-username").addClass("error");
+			$("#login-password").addClass("error");
+		});
+	});
+}
 
 /**
  * Setting up the required event listeners for the application

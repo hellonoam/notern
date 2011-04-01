@@ -12,6 +12,10 @@ div#templates {
 	display: none;
 }
 
+#popup .error {
+	border-color: red;
+}
+
 /* @group notes */
 
 div.notecont {
