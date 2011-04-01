@@ -125,3 +125,17 @@ Note.prototype.isPendingDelete = function() {
   var self = this;
   return !_.isUndefined(self.data["pendingDelete"]);
 };
+
+/**
+ * Returns formatted metadata for the Note.
+ */
+Note.prototype.metadata = function() {
+  var self = this;
+  var result = "Added";
+  if (self.data.geoName) {
+    result += " near " + self.data.geoName
+  }
+  var date = new Date(self.data.lastModified);
+  result += " on " + date.toDateString();
+  return result;
+}
