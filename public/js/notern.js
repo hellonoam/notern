@@ -35,11 +35,13 @@ Notern.prototype.login = function(username, password) {
 	$.post("/login", {username: username, password:password});
 }
 
+
 Notern.prototype.signup = function(username, password, email) {
 	var self = this;
 	self.noteController.setUserName(username);
 	$.post("/signup", {username:username, password:password, email:email});
 }
+
 
 /**
  * Setting up the required event listeners for the application
@@ -106,6 +108,7 @@ Notern.prototype.destroyNote = function(note) {
 Notern.prototype.renderNote = function(note) {
   var self = this;
   var noteJson = note.data;
+  noteJson.metadata = note.metadata();
   var noteId = note.noteId();
   // Check if there is an existing rendered version of this node
   // and then replace it.

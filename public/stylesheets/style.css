@@ -67,6 +67,9 @@ div.stats {
 
 a {
   color: #00B7FF;
+	text-decoration: none;
+	font-weight: normal;
+	font-style: normal;
 }
 
 /* @group NewNote */
@@ -109,15 +112,16 @@ div#new_note {
 	text-align: center;
 	background-color: black;
 	width: 100%;
-	padding-bottom: 5px;
+	padding-top: 10px;
 }
 
 a#addNoteButton {
 	float: right;
-	border-radius: 10px;
-	border-bottom: 1px solid white;
-	padding: 5px;
-	margin: 4px 10px 4px 4px;
+	border-radius: 20px;
+	padding: 6px;
+	margin: 8px;
+	background-color: white;
+	border: 1px solid black;
 }
 
 
