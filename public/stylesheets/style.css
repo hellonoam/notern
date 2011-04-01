@@ -67,7 +67,6 @@ div.stats {
 /* @end */
 
 a {
-  color: #00B7FF;
 	text-decoration: none;
 	font-weight: normal;
 	font-style: normal;
@@ -90,6 +89,7 @@ div#main {
 	margin-right: auto;
 	margin-left: auto;
 	max-width: 500px;
+	padding-top: 20px;
 }
 
 input#notesubmit {
@@ -98,13 +98,13 @@ input#notesubmit {
 
 textarea#notetext {
 	width: 100%;
-	border-style: none;
-	padding: 20px;
 	height: 100px;
+	border-style: none;
 	border-bottom-color: #b9b9b9;
 	border-bottom-style: solid;
-	background-color: white;
-	border-right-style: solid;
+	color: black;
+	background-color: #eaeaea;
+	padding: 20px;
 }
 
 div#new_note {
@@ -112,9 +112,7 @@ div#new_note {
 	clear: both;
 	text-align: center;
 	width: 100%;
-	padding-top: 10px;
-	background-color: #585858;
-	border-radius: 0 0 10 10;
+	border-radius: 10;
 }
 
 a#addNoteButton {
@@ -123,7 +121,12 @@ a#addNoteButton {
 	padding: 6px;
 	margin: 8px;
 	background-color: white;
-	border: 1px solid #b1b1b1;
+	border: 1px solid #d6dbdb;
+}
+
+a#addNoteButton:hover {
+	border: 1px solid #9a9a9a;
+	background-color: #d1d1d1;
 }
 
 
@@ -132,22 +135,23 @@ a#addNoteButton {
 /* @group Sort options */
 
 div#sortOptions {
-	margin-top: 16px;
-	width: 320px;
-	height: 46px;
 	margin-right: auto;
 	margin-left: auto;
+	height: 30px;
+	text-align: center;
 }
 
 
 #sortOptions ul li {
 	float: left;
-	width: 140px;
-	border-radius: 8px;
-	moz-border-radius: 8px;
-	padding: 3px;
 	color: #c4c4c4;
 	margin: 5px;
+}
+
+#sortOptions span {
+	float: left;
+	margin: 6px;
+	color: black;
 }
 
 #sortOptions ul {
@@ -156,20 +160,12 @@ div#sortOptions {
 }
 
 #sortOptions ul li:hover {
-	padding: 2px;
-	width: 140px;
-	border: 1px solid white;
+	border-bottom: 2px solid #c4c4c4;
 }
-
-#sortOptions ul li.active:hover {
-	padding: 3px;
-}
-
 
 #sortOptions ul li.active {
-	background-color: #eef1f1;
 	color: black;
-	border: 1px solid white;
+	border-bottom: 2px solid black;
 }
 
 
@@ -180,19 +176,34 @@ div#sortOptions {
 
 .footer {
 	font-size: 58%;
-	margin: 80px auto 0px auto;
-	width: 500px;
-	border-top: 1px solid white;
-	-webkit-box-shadow: 0 -1px 0 #ddd;
-	-moz-box-shadow: 0 -1px 0 #ddd;
-	box-shadow: 0 -1px 0 #ddd;
-	padding: 20px 0;
 	text-align: center;
 	color: #919191;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	margin-right: auto;
+	margin-top: 20px;
+	margin-left: auto;
 }
 
-.footer span, a { 
+.footer span { 
+	border-radius: 10px;	
+	border: 1px solid rgba(255,254,255,0);
 	margin: 0;
+	background-color: rgba(255,254,255,0.44);
+	padding: 10px;
+	color: black;
 }
+
+/* @end */
+
+/* @group Main */
+
+div#topNav {
+	background-color: white;
+	padding: 10px;
+	border-radius: 5px;
+}
+
+
 
 /* @end */
