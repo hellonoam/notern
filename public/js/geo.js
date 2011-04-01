@@ -13,13 +13,5 @@ $(document).ready(function() {
 		        console.log(JSON.stringify(data));
 		    }
 		});
-
-		// client.searchFromAddress("St. Edmund College, Cambridge, CB3 0BN, UK", function(err, data) {
-		// 	if (err) {
-		//         console.error(err);
-		//     } else {
-		//         console.log(JSON.stringify(data));
-		//     }
-		// });
 	});
 });
