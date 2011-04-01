@@ -34,7 +34,7 @@ Note.prototype.distanceTo = function(location, radius) {
   }
 
   var fromLat = radians(this.data.geo.lat);
-  var fromLon = radians(this.data.geo.lon);
+  var fromLon = radians(this.data.geo.long);
   var toLat = radians(location.coords.latitude);
   var toLon = radians(location.coords.longitude);
   
@@ -135,7 +135,12 @@ Note.prototype.metadata = function() {
   if (self.data.geoName) {
     result += " near " + self.data.geoName
   }
-  var date = new Date(self.data.lastModified);
+  
+  var lastModified = self.data.lastModified;
+  if (typeof(lastModified) == 'string')
+    lastModified = parseInt(lastModified.trim());
+  
+  var date = new Date(lastModified);
   result += " on " + date.toDateString();
   return result;
 }
