@@ -55,7 +55,7 @@ NoteController.prototype.getAllSortedByTime = function() {
 NoteController.prototype.validNotes = function() {
   var self = this;
   var notes = _.values(self.notes);
-  var validNotes = _filter.(notes, function(note) { return note.isPendingDelete(); });
+  var validNotes = _.filter(notes, function(note) { return note.isPendingDelete(); });
   return validNotes;
 };
 
