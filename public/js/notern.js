@@ -101,7 +101,14 @@ Notern.prototype.showPopup = function() {
 		});
 	});
 	$("#login-button").click(function() {
-		self.login($("#login-username").val(), $("#login-password").val(), hidePopupShowRest, function() {
+		self.login($("#login-username").val(), $("#login-password").val(), function(response) {
+			if (response != "failed")
+				hidePopupShowRest();
+			else {
+				$("#login-username").addClass("error");
+				$("#login-password").addClass("error");
+			}
+		}, function() {
 			$("#login-username").addClass("error");
 			$("#login-password").addClass("error");
 		});
