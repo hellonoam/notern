@@ -78,7 +78,7 @@ Note.prototype.save = function() {
  *    the notes unique id
  */
 Note.prototype.noteId = function() {
-  return this.data.nodeId;
+  return this.data.noteId;
 };
 
 

@@ -113,7 +113,7 @@ NoteController.prototype.loadNotesFromLocalStore = function() {
 NoteController.prototype.persistNotesToLocalStorage = function() {
   var self = this;
   if (self.hasLocalStorage) {
-    var localNotesData = _.map(self.notes, function(note) { return note.data; });
+    var localNotesData = _.map(_.values(self.notes), function(note) { return note.data; });
     self.writeToLocalStorage("notes", localNotesData);
   }
 };
@@ -137,7 +137,7 @@ NoteController.prototype.getLatestNotesFromServer = function() {
     // We should set the last modified flag accordingly
     // so that we know when the last note we received from the
     // server was from.
-    var notes = _.each(notesJson, function(noteJson) {
+    var notes = _.map(notesJson, function(noteJson) {
       return new Note(noteJson);
     });
     _.each(notes, function(note) {
