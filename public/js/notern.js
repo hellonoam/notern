@@ -51,11 +51,12 @@ Notern.prototype.initEventlisteners = function() {
   // Listen for the user submitting new notes
   $("#addNoteButton").click(function() {
     console.log("in the submit listener");
-    self.noteController.newNote({
+    var note = self.noteController.newNote({
       content: $("#notetext").val(), 
       metadata: "random metadata",
       geo: self.geoData
-    }).save();
+    });
+    self.noteController.save(note);
     return false;
   });
   // Listen to new notes being added
@@ -111,7 +112,7 @@ Notern.prototype.renderNote = function(note) {
   var renderedNote = self.noteTemplate(noteJson);
   $("#notes").prepend(renderedNote);
   $("#" + noteId + " div.deleteNote a").click(function() {
-    note.destroy();
+    self.noteController.destroy(note);
   });
 };
 

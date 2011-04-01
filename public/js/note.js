@@ -20,10 +20,13 @@ function Note(data) {
  *  location HTML5 position we wish to find distance to.
  *  radius Radius of the planet we're interested in (defaults to Earth).
  * @returns
- *   distance in kilometres between the note's and the supplied location.
+ *   distance in kilometres between the note's and the supplied location,
+ *            or ZERO if location is undefined.
  */
 Note.prototype.distanceTo = function(location, radius) {
   // Adapted from http://www.movable-type.co.uk/scripts/latlong.html
+  
+  if (typeof(location) == 'undefined') return 0;
   if (typeof(radius) == 'undefined') radius = 6371;  // earth's radius (km)
 
   var radians = function(degrees) {
@@ -46,77 +49,6 @@ Note.prototype.distanceTo = function(location, radius) {
 
   return d;
 }
-
-/**
- * Saves a node to the local datastore
- * and to the server.
- * @returns:
- *    an array of notes
- */
-Note.prototype.destroy = function() {
-  var self = this;
-  // TODO: Add a method for catching errors and destroy later
-  // when online again!
-  $.ajax({
-    type: 'DELETE',
-    url: '/user/sebastian/notes/' + self.data.noteId,
-    error: function() {
-      self.data["pendingDelete"] = true;
-      console.log("Failed at deleting node... will retry");
-      $(self).trigger('serverDeleteFailed');
-    },
-    success: function() {
-      $(self).trigger('destroySuccessful');
-      console.log("Note successfully destroyed at server...");
-    }
-  });
-  // Let observers know that the note destroyed itself
-  $(self).trigger('noteDestroyed');
-};
-
-
-/**
- * Destroys a particular note
- * @void
- */
-Note.prototype.save = function() {
-  var self = this;
-  console.log("is this note new? " + self.isNew() + ", what is last saved? " + self.data.lastSaved);
-  console.log(self);
-  // TODO: Add some state that indicates if a note has been saved
-  // or not that can be shown to the user
-
-  // If it is a new object, set the createdAt time
-  var METHOD = "";
-  var serverUrl = "/user/sebastian/notes/";
-  if (self.isNew()) {
-    // This is a new note, so it should be created with POST
-    METHOD = "POST";
-  } else {
-    METHOD = "PUT";
-    serverUrl = serverUrl + self.noteId();
-  };
-  // The note is changed, so update the last modified time
-  self.data.lastModified = new Date().getTime();
-
-  $.ajax({
-    type: METHOD,
-    url: serverUrl,
-    data: self.data,
-    success: function(data) { 
-      console.log("note was saved"); 
-      self.data.lastSaved = new Date().getTime();
-      $(self).trigger('noteSaved');
-      self.rerenderNote();
-    },
-    error: function(data) { 
-      console.log("note saving FAILED. handle"); 
-      $(self).trigger('serverSaveFailed');
-    }
-  });
-
-  $(self).trigger('noteAdded');
-};
 
 
 /**
