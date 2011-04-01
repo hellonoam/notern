@@ -72,6 +72,18 @@ Notern.prototype.initEventlisteners = function() {
     });
     // TODO: Listen to note change and rerender it
   });
+  $("#sortByTime").click(function() {
+    $("#sortByTime").addClass("active");
+    $("#sortByLocation").removeClass("active");
+    var notes = self.noteController.getAllSortedByTime();
+    self.renderNotes(notes);
+  });
+  $("#sortByLocation").click(function() {
+    $("#sortByLocation").addClass("active");
+    $("#sortByTime").removeClass("active");
+    var notes = self.noteController.getAllSortedByDistance();
+    self.renderNotes(notes);
+  });
 };
 
 /**
@@ -85,10 +97,7 @@ Notern.prototype.compileTemplates = function() {
 
 
 /**
- * Renders a particular note.
- * If it has previously been rendered in the DOM,
- * then it will be replaced. If not it is added to the
- * bottom of the list of notes
+ * Removes a given note from the Dom
  * @void
  */
 Notern.prototype.destroyNote = function(note) {
@@ -99,10 +108,26 @@ Notern.prototype.destroyNote = function(note) {
 
 
 /**
+ * Renders a list of notes after having cleared all the notes already
+ * in the dom.
+ * @params
+ *  notes : list of notes to be rendered
+ * @void
+ */
+Notern.prototype.renderNotes = function(notes) {
+  var self = this;
+  $("#notes").html("");
+  _.each(notes, function(note) {
+    self.renderNote(note);
+  });
+};
+
+
+/**
  * Renders a particular note.
  * If it has previously been rendered in the DOM,
  * then it will be replaced. If not it is added to the
- * bottom of the list of notes
+ * top of the list of notes
  * @void
  */
 Notern.prototype.renderNote = function(note) {

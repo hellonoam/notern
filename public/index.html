@@ -28,8 +28,8 @@
         <div class="note" id="noteId">
           <div class="notecont">
             <div class="metadata">
-              <div class="stats">asdasd asd lkjh</div>
-              <div class="deleteNote"><a href="#">&nbsp;</a></div>
+              <div class="stats"></div>
+              <div class="deleteNote"><a href="#" onclick="return false">&nbsp;</a></div>
             </div>
             <div class="content"></div>
           </div>
@@ -44,11 +44,19 @@
       </div>
       <div id="sortOptions">
         <ul>
-          <li>By time</li>
-          <li>By location</li>
+          <li class="active" id="sortByTime">By time</li>
+          <li id="sortByLocation">By location</li>
         </ul>
       </div>
       <div id="notes">
+      </div>
+
+      <div class="footer"> 
+        <span>Notern is created by 
+          <a href="http://twitter.com/hellonoam">Noam Szpiro</a>, 
+          Rhodri Karim and 
+          <a href="http://twitter.com/probst">Sebastian Probst Eide</a>
+        </span>
       </div>
     </div>
   </body> 

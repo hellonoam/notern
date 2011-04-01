@@ -2,8 +2,8 @@
 
 body {
 	margin: 0;
-	background-color: #ececec;
 	font-size: 123.1%;
+	background: #ececec url(/images/bg.png) no-repeat fixed center bottom;
 }
 
 /* @group templates */
@@ -55,6 +55,7 @@ div.stats {
 	float: left;
 	width: 90%;
 	text-align: left;
+	font-size: 77%;
 }
 
 
@@ -99,29 +100,30 @@ textarea#notetext {
 	width: 100%;
 	border-style: none;
 	padding: 20px;
-	z-index: -2;
 	height: 100px;
 	border-bottom-color: #b9b9b9;
 	border-bottom-style: solid;
 	background-color: white;
+	border-right-style: solid;
 }
 
 div#new_note {
 	display: table;
 	clear: both;
 	text-align: center;
-	background-color: black;
 	width: 100%;
 	padding-top: 10px;
+	background-color: #585858;
+	border-radius: 0 0 10 10;
 }
 
 a#addNoteButton {
 	float: right;
-	border-radius: 20px;
+	border-radius: 10px;
 	padding: 6px;
 	margin: 8px;
 	background-color: white;
-	border: 1px solid black;
+	border: 1px solid #b1b1b1;
 }
 
 
@@ -130,21 +132,67 @@ a#addNoteButton {
 /* @group Sort options */
 
 div#sortOptions {
-	margin-top: 10px;
+	margin-top: 16px;
+	width: 320px;
+	height: 46px;
+	margin-right: auto;
+	margin-left: auto;
 }
 
 
 #sortOptions ul li {
 	float: left;
-	width: 40%;
-	margin: 1%;
+	width: 140px;
 	border-radius: 8px;
+	moz-border-radius: 8px;
+	padding: 3px;
+	color: #c4c4c4;
+	margin: 5px;
 }
+
+#sortOptions ul {
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#sortOptions ul li:hover {
+	padding: 2px;
+	width: 140px;
+	border: 1px solid white;
+}
+
+#sortOptions ul li.active:hover {
+	padding: 3px;
+}
+
 
 #sortOptions ul li.active {
-	background-color: white;
+	background-color: #eef1f1;
+	color: black;
+	border: 1px solid white;
 }
 
 
+
+/* @end */
+
+/* @group Footer */
+
+.footer {
+	font-size: 58%;
+	margin: 80px auto 0px auto;
+	width: 500px;
+	border-top: 1px solid white;
+	-webkit-box-shadow: 0 -1px 0 #ddd;
+	-moz-box-shadow: 0 -1px 0 #ddd;
+	box-shadow: 0 -1px 0 #ddd;
+	padding: 20px 0;
+	text-align: center;
+	color: #919191;
+}
+
+.footer span, a { 
+	margin: 0;
+}
 
 /* @end */

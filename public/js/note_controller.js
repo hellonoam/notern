@@ -96,7 +96,7 @@ NoteController.prototype.initNotes = function() {
 NoteController.prototype.getAllSortedByDistance = function() {
   var self = this;
   return _.sortBy(self.validNotes(),
-                  function(note) { note.distanceTo(self.location); });
+                  function(note) { return note.distanceTo(self.location); });
 };
 
 
@@ -107,7 +107,7 @@ NoteController.prototype.getAllSortedByDistance = function() {
  */
 NoteController.prototype.getAllSortedByTime = function() {
   var self = this;
-  return _.sortBy(self.validNotes(), function(note) { note.createdAt(); });
+  return _.sortBy(self.validNotes(), function(note) { return note.createdAt(); });
 };
 
 
@@ -120,7 +120,7 @@ NoteController.prototype.getAllSortedByTime = function() {
 NoteController.prototype.validNotes = function() {
   var self = this;
   var notes = _.values(self.notes);
-  var validNotes = _.filter(notes, function(note) { return note.isPendingDelete(); });
+  var validNotes = _.filter(notes, function(note) { return !note.isPendingDelete(); });
   return validNotes;
 };
 
