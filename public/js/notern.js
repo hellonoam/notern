@@ -7,7 +7,6 @@ function Notern() {
   self.init();
 };
 
-
 /**
  * Perform init functions to setup of the notern client
  */
@@ -29,6 +28,18 @@ Notern.prototype.init = function() {
   self.noteController.initNotes();
 };
 
+
+Notern.prototype.login = function(username, password) {
+	var self = this;
+	// self.noteController.setUserName(username);
+	$.post("/login", {username: username, password:password});
+}
+
+Notern.prototype.signup = function(username, password, email) {
+	var self = this;
+	// self.noteController.setUserName(username);
+	$.post("/signup", {username:username, password:password, email:email});
+}
 
 /**
  * Setting up the required event listeners for the application

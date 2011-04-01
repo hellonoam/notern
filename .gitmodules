@@ -4,3 +4,6 @@
 [submodule "vendor/pure"]
 	path = vendor/pure
 	url = git://github.com/pure/pure.git
+[submodule "vendor/cookies"]
+	path = vendor/cookies
+	url = git://github.com/jed/cookies.git
