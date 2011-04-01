@@ -41,15 +41,18 @@
     </div>
 
     <div id="main">
-      <div id="new_note">
-        <textarea id="notetext" rows="1"></textarea>
-        <a id="addNoteButton" href="#">Add note</a>
-      </div>
-      <div id="sortOptions">
-        <ul>
-          <li class="active" id="sortByTime">By time</li>
-          <li id="sortByLocation">By location</li>
-        </ul>
+      <div id="topNav">
+        <div id="new_note">
+          <textarea id="notetext" rows="1"></textarea>
+          <a id="addNoteButton" href="#">Add note</a>
+        </div>
+        <div id="sortOptions">
+          <span>Sort by:</span>
+          <ul>
+            <li class="active" id="sortByTime">Time</li>
+            <li id="sortByLocation">Proximity</li>
+          </ul>
+        </div>
       </div>
       <div id="notes">
       </div>
