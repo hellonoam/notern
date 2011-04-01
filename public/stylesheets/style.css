@@ -1,8 +1,9 @@
 /* @override http://localhost:8000/stylesheets/style.css */
 
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+	margin: 0;
+	background-color: #ececec;
+	font-size: 123.1%;
 }
 
 /* @group templates */
@@ -13,40 +14,47 @@ div#templates {
 
 /* @group notes */
 
-div.note {
+div.notecont {
 	clear: left;
-	margin-top: 20px;
-	display: table;
-	width: 700px;
 	padding-bottom: 10px;
-/*	background: url(/images/shadow.png) no-repeat right bottom;*/
+	padding: 5px;
 	margin-right: auto;
+	margin-top: 20px;
 	margin-left: auto;
+	background-color: white;
+	border-radius: 5px;
+	border: 1px solid white;
+}
+
+div.note {
+	background: url(/images/shadow.png) no-repeat center bottom;
+	padding-bottom: 10px;
 }
 
 div.content {
 	background-color: white;
-	float: left;
-	width: 70%;
+	text-align: left;
 	padding: 10px;
-	margin-left: 30%;
-	-webkit-box-shadow: #AAA 0px 1px 3px;
-	-moz-box-shadow: #AAA 0px 1px 3px;
-	border-radius: 8px;
-	-moz-border-radius: 8px;
 }
 
 div.metadata {
-	float: left;
-	width: 20%;
-	text-align: right;
-	font-size: 12px;
-	padding: 10px;
+	font-size: 77%;
+	border-bottom: 1px solid #dee0e0;
+	padding: 2px;
+	color: #a9a9a9;
+	display: block;
+	height: 19px;
 }
 
-body {
-	margin: 0;
-	background-color: #ececec;
+div.deleteNote {
+	display: table;
+	float: right;
+}
+
+div.stats {
+	float: left;
+	width: 90%;
+	text-align: left;
 }
 
 
@@ -59,16 +67,28 @@ body {
 
 a {
   color: #00B7FF;
+	text-decoration: none;
+	font-weight: normal;
+	font-style: normal;
 }
 
-/* @group main */
+/* @group NewNote */
 
-div#new_note {
-	width: 100%;
+div.metadata div.deleteNote a {
+	background: url(/images/close.png) no-repeat center top;
+	width: 15px;
+	height: 15px;
 	display: block;
-	clear: both;
-	text-align: center;
-	padding: 10px;
+	text-decoration: none;
+	font-weight: normal;
+	font-style: normal;
+}
+
+div#main {
+	width: 90%;
+	margin-right: auto;
+	margin-left: auto;
+	max-width: 500px;
 }
 
 input#notesubmit {
@@ -76,13 +96,53 @@ input#notesubmit {
 }
 
 textarea#notetext {
-	clear: both;
-	width: 400px;
+	width: 100%;
+	border-style: none;
+	padding: 20px;
+	z-index: -2;
 	height: 100px;
-	font-size: 16px;
+	border-bottom-color: #b9b9b9;
+	border-bottom-style: solid;
+	background-color: white;
+}
+
+div#new_note {
+	display: table;
+	clear: both;
+	text-align: center;
+	background-color: black;
+	width: 100%;
+	padding-top: 10px;
+}
+
+a#addNoteButton {
+	float: right;
+	border-radius: 20px;
+	padding: 6px;
+	margin: 8px;
+	background-color: white;
+	border: 1px solid black;
+}
+
+
+/* @end */
+
+/* @group Sort options */
+
+div#sortOptions {
+	margin-top: 10px;
+}
+
+
+#sortOptions ul li {
+	float: left;
+	width: 40%;
+	margin: 1%;
 	border-radius: 8px;
-	-moz-border-radius: 8px;
-	border: 1px solid #ccc;
+}
+
+#sortOptions ul li.active {
+	background-color: white;
 }
 
 

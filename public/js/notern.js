@@ -35,11 +35,13 @@ Notern.prototype.login = function(username, password) {
 	$.post("/login", {username: username, password:password});
 }
 
+
 Notern.prototype.signup = function(username, password, email) {
 	var self = this;
 	self.noteController.setUserName(username);
 	$.post("/signup", {username:username, password:password, email:email});
 }
+
 
 /**
  * Setting up the required event listeners for the application
@@ -106,6 +108,7 @@ Notern.prototype.destroyNote = function(note) {
 Notern.prototype.renderNote = function(note) {
   var self = this;
   var noteJson = note.data;
+  noteJson.metadata = note.metadata();
   var noteId = note.noteId();
   // Check if there is an existing rendered version of this node
   // and then replace it.
@@ -125,9 +128,9 @@ Notern.prototype.renderNote = function(note) {
 Notern.prototype.compileNotesDirective = function() {
 	var notesDirectives = {
     "div.note@id":'noteId',
-    "div div.deleteNote a@data-id":'noteId',
-    "div div.metadata":'metadata',
-    "div div.content":'content'
+    "div div div.metadata div.stats":'metadata',
+    "div div div.metadata div.deleteNote a@data-id":'noteId',
+    "div div div.content":'content'
 	};
 	return $p("div#templates div.notes").compile(notesDirectives);
 };

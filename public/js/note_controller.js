@@ -319,6 +319,7 @@ NoteController.prototype.newNote = function(noteJson) {
       var geo = {lat: coords.latitude, long: coords.longitude};
       noteJson["geo"] = geo;
       if (self.locationName) noteJson["geoName"] = self.locationName;
+      // TODO: add metadata when the note is ALTERED!
   }
   
   var newNote = new Note(noteJson);
@@ -458,7 +459,7 @@ NoteController.prototype.offlineActionHasBeenPerformed = function(key) {
  */
 NoteController.prototype.getUsernameFromLocalStorage = function() {
   var self = this;
-  var defaultUser = "defaultUser";
+  var defaultUser = "sebastian";
   if (self.hasLocalStorage) {
     var username = self.readFromLocalStorage("ownerOfData");
     if (username == null) {
