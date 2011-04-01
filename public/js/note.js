@@ -41,11 +41,13 @@ Note.prototype.save = function() {
   if (self.data.noteId == null) {
     // This is a new item, create it
     console.log("Creating note: " + self);
-    $.post("/user/sebastian/notes", self.data, self.postCreateUpdateHook, "application/json");
+    $.post("/user/sebastian/notes", self.data, function(data) {
+      self.postCreateUpdateHook(data);
+    }, "json");
   } else {
     // This is an existing item, update it
     var noteId = self.data.noteId;
-    $.put('/user/sebastian/notes/' + noteId, self.data, self.postCreateUpdateHook, "application/json");
+    $.put('/user/sebastian/notes/' + noteId, self.data, function(data) { self.postCreateUpdateHook(data); }, "json");
   };
 };
 
