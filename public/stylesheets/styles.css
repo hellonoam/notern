@@ -1,3 +1,5 @@
+/* @override http://localhost/stylesheets/styles.css */
+
 /* @override http://localhost:80/stylesheets/styles.css */
 
 html {
@@ -235,7 +237,7 @@ div#topNav {
 
 /* @end */
 
-/* @group Popup */
+/*/* @group Popup */
 
 div#popup {
 	width: 500px;
@@ -244,30 +246,24 @@ div#popup {
 	position: absolute;
 	left: -250px;
 	margin-top: 100px;
-	height: 250px;
+	border-radius: 30px;
+	-moz-border-radius: 30px;
+	background-color: whitesmoke;
+	opacity: 0.9;
 }
 
 div#popbottom {
-	background-color: white;
-	border-radius: 0 0 10 10;
-	-moz-border-radius: 0 0 10 10;
 	padding: 0 20px 20px;
 }
 
 div#poptop {
-	background-color: white;
 	padding: 20px;
-	border: 3px solid white;
-	border-bottom-style: none;
-	border-radius: 10 10 0 0;
-	-moz-border-radius: 10 10 0 0;
-	background-image: url(/images/top.png);
 }
 
 div#joinus {
 	background-color: black;
-	border-radius: 10;
-	-moz-border-radius: 10;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
 	padding: 10px;
 }
 
@@ -324,4 +320,4 @@ div#signup {
 
 
 
-/* @end */
+/* @end */*/
