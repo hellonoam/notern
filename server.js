@@ -11,8 +11,8 @@ process.addListener('uncaughtException', function (err, stack) {
   console.log('------------------------');
 });
 
-var ManifestWriter = require('./ManifestWriter');
-ManifestWriter.writeManifest(__dirname + "/public", "notern.manifest");
+// var ManifestWriter = require('./ManifestWriter');
+// ManifestWriter.writeManifest(__dirname + "/public", "notern.manifest");
 
 var Notern = require('./lib/notern');
 new Notern({
