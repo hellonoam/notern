@@ -50,6 +50,7 @@ Notern.prototype.isLoggedIn = function() {
 }
 
 
+
 /*
  * logs the user in by sending the credentials to the server
  */
