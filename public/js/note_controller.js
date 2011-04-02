@@ -22,6 +22,7 @@ function NoteController(config) {
         navigator.geolocation.watchPosition(
             self.updateUserLocation(self),
             function(error) {
+				console.log(error);
                 // Don't freak out... yet
             }
     );

@@ -121,7 +121,7 @@ textarea#notetext {
 	width: 94%;
 	border-style: none;
 	border-bottom-color: #b9b9b9;
-	border-bottom-style: solid;
+	border-radius: 5px;
 	color: black;
 	background-color: #eaeaea;
 	padding: 3%;
