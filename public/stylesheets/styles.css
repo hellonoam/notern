@@ -240,6 +240,7 @@ div#topNav {
 /*/* @group Popup */
 
 div#popup {
+	font-family: 'Indie Flower', serif;
 	width: 500px;
 	margin-right: auto;
 	margin-left: 50%;
@@ -273,7 +274,7 @@ div#joinus {
 }
 
 #joinus p {
-	font-size: 60%;
+	font-size: 70%;
 	color: white;
 	text-align: left;
 	line-height: 1.3em;
