@@ -61,8 +61,9 @@ exports.writeManifest = function(directory, filename) {
     
     var files = enumerateFiles(directory);
     for (var i = 0; i < files.length; i++) {
-        var rs = fs.readFileSync(directory + "/" + filename);
-        h.update(rs); h.update(filename);
+        var path = directory + "/" + files[i];
+        var contents = fs.readFileSync(path, "base64");
+        h.update(contents); h.update(files[i]);
         w.write(files[i] + "\n");
     }
     
