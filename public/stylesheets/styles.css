@@ -1,11 +1,22 @@
 /* @override http://localhost:80/stylesheets/styles.css */
 
 html {
-	background: url(/images/bg.jpg) no-repeat center center fixed;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
 	background-size: cover;
+}
+html.image1 {
+	background: url(/images/1.jpg) no-repeat center center fixed;
+}
+html.image2 {
+	background: url(/images/2.jpg) no-repeat center center fixed;
+}
+html.image3 {
+	background: url(/images/3.jpg) no-repeat center center fixed;
+}
+html.image4 {
+	background: url(/images/4.jpg) no-repeat center center fixed;
 }
 
 body {
