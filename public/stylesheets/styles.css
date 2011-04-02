@@ -248,8 +248,7 @@ div#popup {
 	margin-top: 100px;
 	border-radius: 30px;
 	-moz-border-radius: 30px;
-	background-color: whitesmoke;
-	opacity: 0.9;
+	background-color: rgba(230,245,214,0.52);
 }
 
 div#popbottom {
