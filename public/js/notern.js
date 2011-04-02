@@ -44,7 +44,9 @@ function textAreaAdjust(o) {
  * returns whether or not the user is currently logged in
  */
 Notern.prototype.isLoggedIn = function() {
-	return false;
+  var self = this;
+  var username = self.noteController.getUsernameFromLocalStorage();
+  return (username != null && username != "");
 }
 
 
@@ -110,9 +112,10 @@ Notern.prototype.showPopup = function() {
 	});
 	$("#login-button").click(function() {
 		self.login($("#login-username").val(), $("#login-password").val(), function(response) {
-			if (response != "failed")
+			if (response != "failed") {
 				hidePopupShowRest();
-			else {
+        self.noteController.getLatestNotesFromServer();
+      } else {
 				$("#login-username").addClass("error");
 				$("#login-password").addClass("error");
 			}
