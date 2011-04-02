@@ -10,6 +10,7 @@
     <script src="js/jquery.js" type="text/javascript"></script>
     <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript"></script>-->
     <script src="js/underscore.js" type="text/javascript"></script> 
+    <script src="js/autoresize.jquery.min.js" type="text/javascript"></script> 
     <script src="js/pure.js" type="text/javascript"></script> 
     <script src="js/json2.js" type="text/javascript"></script> 
     <script src="js/sha.js" type="text/javascript"></script>
@@ -22,12 +23,61 @@
     <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.8.2r1/build/reset-fonts-grids/reset-fonts-grids.css">
     <link href="stylesheets/style.css" media="screen" rel="stylesheet" type="text/css" /> 
     
-  </head> 
-  <body> 
+  </head>
+  <body>
+    <div id="popup">
+      <div id="poptop">
+        <div id="joinus">
+          <h1>Howdy</h1>
+          <p>Wherever you are... bla bla</p>
+          <p>Can't write text.. blah blah.</p>
+        </div>
+      </div>
+      <div id="popbottom">
+        <div id="login" class="form">
+          <h1>Login</h1>
+          <div>
+            <div class="left">username:</div>
+            <div class="right">
+              <input type="text" id="login-username">
+            </div>
+          </div>
+          <div>
+            <div class="left">password:</div>
+            <div class="right">
+              <input type="password" id="login-password">
+            </div>
+          </div>
+          <a id="login-button" href="#">login</a>
+        </div>
+        <div id="signup" class="form">
+          <h1>Signup</h1>
+          <div>
+            <div class="left">username:</div>
+            <div class="right">
+              <input type="text" id="signup-username">
+            </div>
+          </div>
+          <div>
+            <div class="left">password:</div>
+            <div class="right">
+              <input type="password" id="signup-password">
+            </div>
+          </div>
+          <div>
+            <div class="left">email:</div>
+            <div class="right">
+              <input type="email" id="signup-email">
+            </div>
+          </div>
+          <a id="signup-button" href="#">signup</a>
+        </div>
+      </div>
+    </div>
     <div id="templates">
       <div class="notes">
-        <div class="note" id="noteId">
-          <div class="notecont">
+        <div class="note hidden" id="noteId">
+          <div class="notecont"> 
             <div class="metadata">
               <div class="stats"></div>
               <div class="deleteNote"><a href="#" onclick="return false">&nbsp;</a></div>
@@ -41,7 +91,7 @@
     <div id="main">
       <div id="topNav">
         <div id="new_note">
-          <textarea id="notetext" rows="1"></textarea>
+          <textarea id="notetext" rows="1" onkeypress="textAreaAdjust(this)">Your note</textarea>
           <a id="addNoteButton" href="#">Add note</a>
         </div>
         <div id="sortOptions">
