@@ -16,5 +16,5 @@ ManifestWriter.writeManifest(__dirname + "/public", "notern.manifest");
 
 var Notern = require('./lib/notern');
 new Notern({
-  port: 8000
+  port: 80
 }).listen();
