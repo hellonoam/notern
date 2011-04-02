@@ -5,6 +5,9 @@ var fs = require('fs'),
 
 var ignore = ['.DS_Store'];
 
+var externals = ['http://maps.google.com/maps/api/js',
+                 'http://yui.yahooapis.com/2.8.2r1/build/reset-fonts-grids/reset-fonts-grids.css'];
+
 /**
  * Returns true if the array contains the supplied object.
  */
@@ -58,12 +61,19 @@ exports.writeManifest = function(directory, filename) {
     
     var files = enumerateFiles(directory);
     for (var i = 0; i < files.length; i++) {
-        h.update(files[i]);
+        var path = directory + "/" + files[i];
+        var contents = fs.readFileSync(path, "base64");
+        h.update(contents); h.update(files[i]);
         w.write(files[i] + "\n");
     }
     
     w.write("# Version Hash:\n");
     w.write("# " + h.digest("base64") + "\n");
+    w.write("\n");
+    w.write("NETWORK:\n");
+    for (var e = 0; e < externals.length; e++) {
+        w.write(externals[e] + "\n");
+    }
     
     w.end(); w.destroySoon();
 }
