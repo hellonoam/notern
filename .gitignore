@@ -1,4 +1,5 @@
 .DS_Store
+public/notern.manifest
 public/.DS_Store
 */.DS_Store
 */*/.DS_Store
