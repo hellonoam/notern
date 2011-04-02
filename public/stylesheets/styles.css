@@ -152,6 +152,13 @@ a#addNoteButton:hover {
 	background-color: #d1d1d1;
 }
 
+#logout {
+	font-size:60%;
+	text-align:right;
+	margin-right:0px;
+	margin-top:20px;
+	float:right;
+}
 
 /* @end */
 

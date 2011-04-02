@@ -31,6 +31,8 @@ Notern.prototype.init = function() {
 		self.showPopup();
 	else
 		self.hidePopup();
+
+	self.listenToLogout();
 };
 
 
@@ -73,6 +75,7 @@ Notern.prototype.logout = function() {
 	var self = this;
 	self.noteController.setUserName("");
 	$.get("/logout");
+	location.reload(true);
 }
 
 /*
@@ -91,6 +94,15 @@ Notern.prototype.hidePopup = function() {
 	$("#popup").hide();
 }
 
+/*
+ * initiates the logout process when the logout link is clicked
+ */
+Notern.prototype.listenToLogout = function() {
+	var self = this;
+	$("#logout a").click(function() {
+		self.logout();
+	})
+}
 /*
  * hides the main website and only shows the login/signup popup
  */
