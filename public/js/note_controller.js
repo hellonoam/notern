@@ -459,7 +459,7 @@ NoteController.prototype.offlineActionHasBeenPerformed = function(key) {
  */
 NoteController.prototype.getUsernameFromLocalStorage = function() {
   var self = this;
-  var defaultUser = "sebastian";
+  var defaultUser = "";
   if (self.hasLocalStorage) {
     var username = self.readFromLocalStorage("ownerOfData");
     if (username == null) {
