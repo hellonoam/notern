@@ -1,3 +1,6 @@
 .DS_Store
-notern.db
 public/notern.manifest
+public/.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+notern.db
