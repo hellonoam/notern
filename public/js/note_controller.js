@@ -81,7 +81,6 @@ NoteController.prototype.initNotes = function() {
   self.getLatestNotesFromServer();
   self.performOfflineActions();
   setInterval(function() {
-    console.log("trying to save unsaved notes");
     self.performOfflineActions();
   }, 30000);
 };
@@ -145,7 +144,6 @@ NoteController.prototype.addNotes = function(notes) {
     hasNewNotes = true;
     // Listen to the note destroying itself
     $(note).bind('destroySuccessful', function(event) {
-      console.log("controller was informed that note destroyed itself");
       var theNote = event.currentTarget;
       delete self.notes[theNote.noteId()];
       self.persistNotesToLocalStorage();
@@ -289,12 +287,10 @@ NoteController.prototype.destroy = function(note) {
     url: '/user/' + self.userName + '/notes/' + note.noteId(),
     error: function() {
       note.data["pendingDelete"] = true;
-      console.log("Failed at deleting node... will retry");
       $(note).trigger('serverDeleteFailed');
     },
     success: function() {
       $(note).trigger('destroySuccessful');
-      console.log("Note successfully destroyed at server...");
     }
   });
   // Let observers know that the note destroyed itself
@@ -324,29 +320,24 @@ NoteController.prototype.newNote = function(noteJson) {
   
   var newNote = new Note(noteJson);
   $(newNote).bind('noteAdded', function(event) {
-    console.log("Controller got notified about note being added");
     var theNote = event.currentTarget;
     self.addNote(theNote);
   });
   $(newNote).bind('noteSaved', function(event) {
-    console.log("Controller got notified about server save is complete");
     var theNote = event.currentTarget;
     self.offlineActionHasBeenPerformed(theNote.noteId());
     self.persistNotesToLocalStorage();
   });
   $(newNote).bind('serverSaveFailed', function(event) {
     var theNote = event.currentTarget;
-    console.log("Controller got notified about note not being save to server");
     self.registerOfflineAction({id: theNote.noteId(), action: "save"});
   });
   $(newNote).bind('destroySuccessful', function(event) {
     var theNote = event.currentTarget;
     self.offlineActionHasBeenPerformed(theNote.noteId());
-    console.log("Controller got notified about note got deleted from server");
   });
   $(newNote).bind('serverDeleteFailed', function(event) {
     var theNote = event.currentTarget;
-    console.log("Controller got notified about note not being deleted from server");
     self.registerOfflineAction({id: theNote.noteId(), action: "destroy"});
   });
   return newNote;
@@ -363,7 +354,6 @@ NoteController.prototype.performOfflineActions = function() {
     var note = self.notes[data.id];
     if (note) {
       if (data.action == "save") {
-        console.log("trying to save the unsaved note:");
         console.log(note);
         self.save(note);
       } else if (data.action == "destroy") {

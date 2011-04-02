@@ -11,7 +11,6 @@ function Notern() {
  * Perform init functions to setup of the notern client
  */
 Notern.prototype.init = function() {
-  console.log("in init");
   var self = this;
   self.compileTemplates();
 
@@ -103,7 +102,6 @@ Notern.prototype.showPopup = function() {
 	$("#signup-button").click(function() {
 		self.signup($("#signup-username").val(),$("#signup-password").val(), $("#signup-email").val(),
 		function(response) {
-			console.log("response " + response);
 			if (response == "")
 				hidePopupShowRest()
 			else if (response == "in-use")
@@ -131,7 +129,6 @@ Notern.prototype.showPopup = function() {
  * @void
  */
 Notern.prototype.initEventlisteners = function() {
-  console.log("add init event listener");
   var self = this;
   // Listen for the user submitting new notes
   $("#addNoteButton").click(function() {
@@ -147,10 +144,8 @@ Notern.prototype.initEventlisteners = function() {
   });
   // Listen to new notes being added
   $(self.noteController).bind('addedNewNote', function(event, note) {
-    console.log("received new note to render: " + note.noteId());
     self.renderNote(note);
     $(note).bind('noteDestroyed', function(event) {
-      console.log("notern was informed that node was destroyed");
       var theNote = event.currentTarget;
       self.destroyNote(theNote);
     });
