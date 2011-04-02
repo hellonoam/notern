@@ -1,3 +1,4 @@
+
 /**
  * Init function of the notern app.
  * It initializes shit
