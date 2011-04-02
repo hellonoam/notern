@@ -101,27 +101,38 @@ Notern.prototype.showPopup = function() {
 		$("#main").show();
 	};
 	$("#main").hide();
+	$("#signup").click(function() {
+		$("div.email").show();
+		$("#signup-button").show();
+		$("#login-button").hide();
+	});
+	$("#login").click(function() {
+		$("div.email").hide();
+		$("#signup-button").hide();
+		$("#login-button").show();
+	});
+	$("#login").click();
 	$("#signup-button").click(function() {
-		self.signup($("#signup-username").val(),$("#signup-password").val(), $("#signup-email").val(),
+		self.signup($("#username").val(),$("#password").val(), $("#email").val(),
 		function(response) {
 			if (response == "")
 				hidePopupShowRest()
 			else if (response == "in-use")
-				$("#signup-username").addClass("error");
+				$("#username").addClass("error");
 		});
 	});
 	$("#login-button").click(function() {
-		self.login($("#login-username").val(), $("#login-password").val(), function(response) {
+		self.login($("#username").val(), $("#password").val(), function(response) {
 			if (response != "failed") {
 				hidePopupShowRest();
         self.noteController.getLatestNotesFromServer();
       } else {
-				$("#login-username").addClass("error");
-				$("#login-password").addClass("error");
+				$("#username").addClass("error");
+				$("#password").addClass("error");
 			}
 		}, function() {
-			$("#login-username").addClass("error");
-			$("#login-password").addClass("error");
+			$("#username").addClass("error");
+			$("#password").addClass("error");
 		});
 	});
 }
