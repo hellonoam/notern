@@ -78,7 +78,7 @@ Note.prototype.rerenderNote = function() {
  */
 Note.prototype.createdAt = function() {
   var self = this;
-  self.data.createdAt;
+  return self.data.createdAt;
 };
 
 

@@ -31,20 +31,20 @@ function NoteController(config) {
 
 
 /**
- * Set the name of the current logged in user
- * @param
- *  username : username that is used against the web api
+ * Loads all notes from the local store into
+ * memory. If local store is not supported,
+ * they are loaded from the server.
  * @void
  */
-NoteController.prototype.setUserName = function(username) {
+NoteController.prototype.initNotes = function() {
   var self = this;
-  self.userName = username;
-  // Check if the data in the local storage is for this user
-  var userForData = self.readFromLocalStorage("ownerOfData");
-  if (userForData != username) {
-    self.emptyDatabase();
-    self.writeToLocalStorage("ownerOfData", username);
-  }
+  self.notes = {};
+  self.loadNotesFromLocalStore();
+  self.getLatestNotesFromServer();
+  self.performOfflineActions();
+  setInterval(function() {
+    self.performOfflineActions();
+  }, 30000);
 };
 
 
@@ -69,23 +69,6 @@ NoteController.prototype.updateUserLocation = function(controller) {
     };
 };
 
-/**
- * Loads all notes from the local store into
- * memory. If local store is not supported,
- * they are loaded from the server.
- * @void
- */
-NoteController.prototype.initNotes = function() {
-  var self = this;
-  self.notes = {};
-  self.loadNotesFromLocalStore();
-  self.getLatestNotesFromServer();
-  self.performOfflineActions();
-  setInterval(function() {
-    self.performOfflineActions();
-  }, 30000);
-};
-
 
 /**
  * Returns all notes for the current user sorted by increasing distance from
@@ -96,7 +79,7 @@ NoteController.prototype.initNotes = function() {
 NoteController.prototype.getAllSortedByDistance = function() {
   var self = this;
   return _.sortBy(self.validNotes(),
-                  function(note) { return note.distanceTo(self.location); });
+                  function(note) { return note.distanceTo(self.location); }).reverse();
 };
 
 
@@ -123,7 +106,6 @@ NoteController.prototype.validNotes = function() {
   var validNotes = _.filter(notes, function(note) { return !note.isPendingDelete(); });
   return validNotes;
 };
-
 
 
 /**
@@ -346,25 +328,6 @@ NoteController.prototype.newNote = function(noteJson) {
 
 
 /**
- * Saves unsaved notes
- */
-NoteController.prototype.performOfflineActions = function() {
-  var self = this;
-  var offlineActions = self.offlineActions();
-  _.each(offlineActions, function(data) {
-    var note = self.notes[data.id];
-    if (note) {
-      if (data.action == "save") {
-        console.log(note);
-        self.save(note);
-      } else if (data.action == "destroy") {
-        note.destroy();
-      };
-    };
-  });
-};
-
-/**
  * Convenience method for getting the timestamp for
  * the latest change seen from the server.
  * @returns
@@ -393,6 +356,26 @@ NoteController.prototype.setLastModifiedIfGreater = function(time) {
 
 
 /**
+ * Performs all tasks that have been registered as offline actions
+ * @void
+ */
+NoteController.prototype.performOfflineActions = function() {
+  var self = this;
+  var offlineActions = self.offlineActions();
+  _.each(offlineActions, function(data) {
+    var note = self.notes[data.id];
+    if (note) {
+      if (data.action == "save") {
+        self.save(note);
+      } else if (data.action == "destroy") {
+        self.destroy(note);
+      };
+    };
+  });
+};
+
+
+/**
  * Registers that a particular key couldn't be stored or save to the server.
  * The action will be retried
  * @params
@@ -405,10 +388,40 @@ NoteController.prototype.registerOfflineAction = function(data) {
   var self = this;
   if (self.hasLocalStorage) {
     var offlineActions = self.offlineActions();
-    if (_.indexOf(offlineActions, data) == -1) {
-      offlineActions.push(data);
-      self.writeToLocalStorage("offlineActions", offlineActions);
-    }
+    // Find offline actions registered for the particular id
+    var existingMatchingActions = _.select(offlineActions, function(actable) {
+      return data.id == actable.id;
+    });
+    var actionsToSave = offlineActions;
+    // There should never be more than one offline action per key
+    if (existingMatchingActions.length > 1) {
+      console.log("There are more than two existing offline actions for key:" + data.id);
+    };
+    if (existingMatchingActions.length > 0) {
+      var existing = existingMatchingActions[0];
+      if (existing.action == "save" && data.action == "destroy") {
+        // We are destroying a note before it has been saved to the server.
+        // The only thing we need to do is to remove it from the offline action
+        // list.
+        actionsToSave = _.without(actionsToSave, existing);
+      }
+      if (existing.action == "destroy" && data.action == "destroy") {
+        // We have already requested to destroy the note, no need to
+        // add a new task
+      }
+      if (existing.action == "destroy" && data.action == "save") {
+        // This shouldn't happen. If a note has already been destroyed,
+        // then the user can't edit it. We ignore the save request.
+      }
+      if (existing.action == "save" && data.action == "save") {
+        // We already have a save request for this particular note, nothing new
+        // to do. Leave the save action list as is.
+      }
+    } else {
+      // There is no offline action for this id. Add it
+      actionsToSave.push(data);
+    };
+    self.writeToLocalStorage("offlineActions", actionsToSave);
   }
 };
 
@@ -509,5 +522,23 @@ NoteController.prototype.hasLocalStorage = function() {
       && self.settings["useLocalStorage"];
   } catch (e) {
     return false;
+  }
+};
+
+
+/**
+ * Set the name of the current logged in user
+ * @param
+ *  username : username that is used against the web api
+ * @void
+ */
+NoteController.prototype.setUserName = function(username) {
+  var self = this;
+  self.userName = username;
+  // Check if the data in the local storage is for this user
+  var userForData = self.readFromLocalStorage("ownerOfData");
+  if (userForData != username) {
+    self.emptyDatabase();
+    self.writeToLocalStorage("ownerOfData", username);
   }
 };
