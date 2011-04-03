@@ -58,12 +58,15 @@ Notern.prototype.isLoggedIn = function() {
  */
 Notern.prototype.login = function(username, password, succCallback, errCallback) {
 	var self = this;
-	self.noteController.setUserName(username);
 	$.ajax({
 		url: "/login",
 		type: "post",
 		data: {username:username, password:password},
-		success: succCallback,
+		success: function(response) {
+			if (response != "failed")
+				self.noteController.setUserName(username);
+			succCallback(response);
+		},
 		error: errCallback
 	});
 }
