@@ -1,3 +1,5 @@
+/* @override http://localhost:80/stylesheets/styles.css */
+
 html {
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
@@ -60,10 +62,11 @@ div.content {
 div.metadata {
 	font-size: 77%;
 	border-bottom: 1px solid #dee0e0;
-	padding: 2px;
+	padding: 2px 2px 4px;
 	color: #a9a9a9;
-	display: block;
+	display: table;
 	height: 19px;
+	width: 100%;
 }
 
 div.deleteNote {
@@ -96,8 +99,8 @@ a {
 
 div.metadata div.deleteNote a {
 	background: url(/images/close.png) no-repeat center top;
-	width: 15px;
-	height: 15px;
+	width: 16px;
+	height: 16px;
 	display: block;
 	text-decoration: none;
 	font-weight: normal;
