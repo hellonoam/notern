@@ -63,8 +63,10 @@ Notern.prototype.login = function(username, password, succCallback, errCallback)
 		type: "post",
 		data: {username:username, password:password},
 		success: function(response) {
-			if (response != "failed")
+			if (response != "failed") {
 				self.noteController.setUserName(username);
+				mpmetrics.track("login");
+			}
 			succCallback(response);
 		},
 		error: errCallback
@@ -77,8 +79,12 @@ Notern.prototype.login = function(username, password, succCallback, errCallback)
 Notern.prototype.logout = function() {
 	var self = this;
 	self.noteController.setUserName("");
-	$.get("/logout");
-	location.reload(true);
+	$.get("/logout", function() {
+		mpmetrics.track("logout", null, function() {
+			//happens in the callback since mixpanel can't track if redirected
+			location.reload(true);
+		});
+	});
 }
 
 /*
@@ -87,7 +93,10 @@ Notern.prototype.logout = function() {
 Notern.prototype.signup = function(username, password, email, callback) {
 	var self = this;
 	self.noteController.setUserName(username);
-	$.post("/signup", {username: username, password:password, email:email}, callback);
+	$.post("/signup", {username: username, password:password, email:email}, function(data) {
+		mpmetrics.track("sign up");
+		callback(data)
+	});
 }
 
 /*
@@ -160,6 +169,7 @@ Notern.prototype.initEventlisteners = function() {
   var self = this;
   // Listen for the user submitting new notes
   $("#addNoteButton").click(function() {
+	mpmetrics.track("new note");
     var noteText = $("#notetext").val();
     $("#notetext").val("");
     var note = self.noteController.newNote({
@@ -247,6 +257,7 @@ Notern.prototype.renderNote = function(note) {
   var renderedNote = self.noteTemplate(noteJson);
   $("#notes").prepend(renderedNote);
   $("#" + noteId + " div.deleteNote a").click(function() {
+	mpmetrics.track("deleted note");
     self.noteController.destroy(note);
   });
   $("#" + noteId).slideDown('slow');
