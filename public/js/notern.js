@@ -33,6 +33,8 @@ Notern.prototype.init = function() {
 		self.hidePopup();
 
 	self.listenToLogout();
+
+	mpmetrics.track("Load homepage");
 };
 
 
