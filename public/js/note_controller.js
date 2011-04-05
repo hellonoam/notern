@@ -26,7 +26,9 @@ function NoteController(config) {
                 // Don't freak out... yet
             }
     );
-  }
+  } else {
+    mpmetrics.track("No geolocation");
+  };
 };
 
 

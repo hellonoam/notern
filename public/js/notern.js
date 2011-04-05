@@ -169,7 +169,7 @@ Notern.prototype.initEventlisteners = function() {
   var self = this;
   // Listen for the user submitting new notes
   $("#addNoteButton").click(function() {
-	mpmetrics.track("new note");
+	  mpmetrics.track("new note");
     var noteText = $("#notetext").val();
     $("#notetext").val("");
     var note = self.noteController.newNote({
@@ -194,12 +194,14 @@ Notern.prototype.initEventlisteners = function() {
     $("#sortByLocation").removeClass("active");
     var notes = self.noteController.getAllSortedByTime();
     self.renderNotes(notes);
+    mpmetrics.track("Clicked sort by time");
   });
   $("#sortByLocation").click(function() {
     $("#sortByLocation").addClass("active");
     $("#sortByTime").removeClass("active");
     var notes = self.noteController.getAllSortedByDistance();
     self.renderNotes(notes);
+    mpmetrics.track("Clicked sort by distance");
   });
 };
 
@@ -257,7 +259,7 @@ Notern.prototype.renderNote = function(note) {
   var renderedNote = self.noteTemplate(noteJson);
   $("#notes").prepend(renderedNote);
   $("#" + noteId + " div.deleteNote a").click(function() {
-	mpmetrics.track("deleted note");
+	  mpmetrics.track("deleted note");
     self.noteController.destroy(note);
   });
   $("#" + noteId).slideDown('slow');
