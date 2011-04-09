@@ -128,11 +128,15 @@ Notern.prototype.showPopup = function() {
 	};
 	$("#main").hide();
 	$("#signup").click(function() {
+		$(".form div.headers a:last").addClass("current");
+		$(".form div.headers a:first").removeClass("current");
 		$("div.email").show();
 		$("#signup-button").show();
 		$("#login-button").hide();
 	});
 	$("#login").click(function() {
+		$(".form div.headers a:first").addClass("current");
+		$(".form div.headers a:last").removeClass("current");
 		$("div.email").hide();
 		$("#signup-button").hide();
 		$("#login-button").show();

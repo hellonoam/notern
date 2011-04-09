@@ -295,6 +295,14 @@ div#joinus {
 	opacity: 0.85;
 }
 
+.form div.headers a.current {
+	color:#2e2d2c;
+}
+
+.form div.headers a:not(.current) :hover{
+	text-decoration:underline;
+}
+
 .form div.headers {
 	width: 200px;
 	padding-bottom: 70px;
